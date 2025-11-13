@@ -1,0 +1,37 @@
+<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/">FloriCoop</a>
+
+    <ul class="navbar-nav ml-3" *ngIf="!isAuthRoute()">
+      <li class="nav-item"><a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Inicio</a></li>
+      <li class="nav-item"><a routerLink="/inventario" routerLinkActive="active" class="nav-link">Inventario</a></li>
+      <li class="nav-item"><a routerLink="/usuarios"   routerLinkActive="active" class="nav-link">Usuarios</a></li>
+    </ul>
+
+    <ul class="navbar-nav ml-auto align-items-center" *ngIf="!isAuthRoute()">
+      <li class="nav-item mr-2">
+        <span class="badge badge-info p-2">Rol: {{ auth.currentRole() || '—' }}</span>
+      </li>
+      <li class="nav-item">
+        <button class="btn btn-sm btn-outline-dark" (click)="logout()">
+          <i class="fas fa-sign-out-alt mr-1"></i>Salir
+        </button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="content-wrapper">
+  <div class="content">
+    <div class="container py-4">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+
+<footer class="main-footer small text-muted">
+  <div class="container d-flex justify-content-between">
+    <span>© {{ currentYear }} FloriCoop</span>
+    <span>@ONESBACK</span>
+  </div>
+</footer>

@@ -1,0 +1,88 @@
+<div class="row">
+  <div class="col-xl-3 col-md-6 mb-4 reveal" style="--i:0">
+    <div class="fc-kpi fc-kpi--blue">
+      <div class="fc-kpi-head">Productos</div>
+      <div class="fc-kpi-value">{{ skus() }}</div>
+      <div class="fc-kpi-bar">—</div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4 reveal" style="--i:1">
+    <div class="fc-kpi fc-kpi--green">
+      <div class="fc-kpi-head">Stock total</div>
+      <div class="fc-kpi-value">{{ total() }}</div>
+      <div class="fc-kpi-bar">Actualizado</div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4 reveal" style="--i:2">
+    <div class="fc-kpi fc-kpi--warn">
+      <div class="fc-kpi-head">Ítems bajo mínimo</div>
+      <div class="fc-kpi-value">{{ lowCount() }}</div>
+      <div class="fc-kpi-bar">
+        <a class="text-danger font-weight-bold"
+           [routerLink]="['/inventario']"
+           [queryParams]="{ filter: 'low' }">
+          Reponer ahora →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4 reveal" style="--i:3">
+    <div class="fc-kpi fc-kpi--time">
+      <div class="fc-kpi-head">Última actualización</div>
+      <div class="fc-kpi-value">{{ time() }}</div>
+      <div class="fc-kpi-bar">—</div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 mb-4 reveal" style="--i:4">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="font-weight-bold">
+          <i class="fas fa-thermometer-quarter mr-2"></i> Bajo mínimo
+        </div>
+        <a class="btn btn-primary btn-sm"
+           [routerLink]="['/inventario']"
+           [queryParams]="{ filter: 'low' }">Ver todos</a>
+      </div>
+      <div class="card-body">
+        <ng-container *ngIf="lowList().length; else okLow">
+          <ul class="list-group list-group-flush small">
+            <li class="list-group-item d-flex justify-content-between"
+                *ngFor="let p of lowList().slice(0, 6)">
+              <span>{{ p.nombre }}</span>
+              <span class="badge badge-danger">Stock: {{ p.stock }} • Mín: {{ p.min || 0 }}</span>
+            </li>
+          </ul>
+        </ng-container>
+        <ng-template #okLow>
+          <div class="text-muted">
+            <i class="far fa-smile mr-2"></i>Todo bien: no hay ítems bajo el mínimo.
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 mb-4 reveal" style="--i:5">
+    <div class="card">
+      <div class="card-header font-weight-bold">
+        <i class="fas fa-bolt mr-2"></i> Accesos rápidos
+      </div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action d-flex align-items-center"
+           routerLink="/usuarios">
+          <i class="fas fa-users mr-2"></i> Usuarios
+        </a>
+        <button class="list-group-item list-group-item-action d-flex align-items-center"
+                (click)="newProduct()">
+          <i class="fas fa-plus-circle mr-2"></i> Nuevo producto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,82 @@
+/* Paleta simple hacia “FloriCoop” (azules/verde/teal/amarillo) */
+:root {
+  --c-blue: #2f66ff;
+  --c-green: #2e9e43;
+  --c-teal: #1ea7a1;
+  --c-yellow: #f3b400;
+  --c-surface: #f6f8fb;
+  --c-border: #e6e9ef;
+  --c-muted: #7b8794;
+}
+
+.container-fluid { background: var(--c-surface); }
+
+.brand .subnav .subnav-link {
+  color: #4a5568;
+  margin-right: 1rem;
+  text-decoration: none;
+}
+.brand .subnav .subnav-link.active { font-weight: 600; }
+
+/* KPI cards */
+.kpi {
+  border-radius: .75rem;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+.kpi-blue { background: var(--c-blue); }
+.kpi-green { background: var(--c-green); }
+.kpi-teal { background: var(--c-teal); }
+.kpi-yellow { background: var(--c-yellow); color: #1a1a1a; }
+
+.kpi-body { padding: 1.25rem 1.25rem 0.5rem; }
+.kpi-value { font-size: 2.25rem; font-weight: 800; line-height: 1; }
+.kpi-label { opacity: .9; margin-top: .25rem; font-weight: 600; }
+
+.kpi-footer {
+  display: block;
+  padding: .6rem 1.25rem;
+  background: rgba(255,255,255,.12);
+  border-top: 1px solid rgba(255,255,255,.15);
+}
+.kpi-footer.muted {
+  color: rgba(255,255,255,.9);
+}
+.kpi-footer.link {
+  cursor: pointer;
+  color: #fff;
+  background: rgba(0,0,0,.12);
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+/* Cards */
+.card {
+  border: 1px solid var(--c-border);
+  border-radius: .75rem;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,.04);
+}
+.card-header {
+  padding: .9rem 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--c-border);
+  background: #fff;
+}
+.card-body { padding: 1rem; }
+
+.btn-primary-soft {
+  color: var(--c-blue);
+  background: rgba(47,102,255,.1);
+  border: 1px solid rgba(47,102,255,.22);
+}
+.btn-primary-soft:hover { background: rgba(47,102,255,.16); }
+
+.empty {
+  padding: 1.25rem;
+  color: var(--c-muted);
+}

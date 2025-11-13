@@ -1,0 +1,139 @@
+<div class="container py-4">
+  <h2 class="h3 mb-3 d-flex align-items-center gap-2">
+    Inventario
+    <a routerLink="/dashboard" class="btn btn-light btn-sm ml-3">← Volver</a>
+
+    <span class="ms-auto"></span>
+
+    <button
+      *ngIf="isAdmin()"
+      class="btn btn-primary btn-sm"
+      (click)="add()"
+      [disabled]="cargando()"
+      title="Crear nuevo producto"
+    >
+      + Nuevo producto
+    </button>
+  </h2>
+
+  <!-- Alertas -->
+  <div *ngIf="cargando()" class="alert alert-info py-2 mb-3">
+    Cargando productos...
+  </div>
+
+  <div *ngIf="errorMsg()" class="alert alert-danger py-2 mb-3">
+    {{ errorMsg() }}
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th style="width:56px">#</th>
+          <th>Producto</th>
+          <th style="width:140px" class="text-end">Precio</th>
+          <th style="width:140px" class="text-end">Stock</th>
+          <th style="width:120px" class="text-end">Mínimo</th>
+          <th *ngIf="isAdmin()" style="width:240px">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let p of productos(); let i = index; trackBy: trackById"
+          [class.table-danger]="isLow(p)"
+        >
+          <td>{{ i + 1 }}</td>
+
+          <!-- Nombre con edición inline -->
+          <td>
+            <ng-container *ngIf="editingId() !== p.id; else editNameTpl">
+              <strong>{{ p.nombre }}</strong>
+            </ng-container>
+            <ng-template #editNameTpl>
+              <input
+                class="form-control form-control-sm"
+                [ngModel]="draftName()"
+                (ngModelChange)="draftName.set($event)"
+                maxlength="80"
+                [disabled]="cargando()"
+                autofocus
+              />
+            </ng-template>
+          </td>
+
+          <!-- Precio (solo lectura aquí; cambia a editable si tu API soporta) -->
+          <td class="text-end">
+            {{ p.precio | currency:'CLP':'symbol':'1.0-0' }}
+          </td>
+
+          <!-- Stock: edición directa -->
+          <td>
+            <input
+              type="number"
+              class="form-control form-control-sm text-end"
+              [disabled]="!isAdmin() || cargando()"
+              [ngModel]="p.stock"
+              min="0"
+              (ngModelChange)="setStock(p, $event)"
+              inputmode="numeric"
+            />
+          </td>
+
+          <!-- Mínimo (solo lectura en esta vista; puedes habilitar si quieres) -->
+          <td class="text-end">{{ p.min ?? 0 }}</td>
+
+          <!-- Acciones admin -->
+          <td *ngIf="isAdmin()">
+            <ng-container *ngIf="editingId() !== p.id; else actionsEdit">
+              <button
+                class="btn btn-outline-secondary btn-sm me-2"
+                (click)="startRename(p)"
+                [disabled]="cargando()"
+              >
+                Renombrar
+              </button>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                (click)="remove(p)"
+                [disabled]="cargando()"
+              >
+                Eliminar
+              </button>
+            </ng-container>
+
+            <ng-template #actionsEdit>
+              <button
+                class="btn btn-primary btn-sm me-2"
+                (click)="saveRename(p)"
+                [disabled]="cargando() || !(draftName() || '').trim()"
+              >
+                Guardar
+              </button>
+              <button
+                class="btn btn-light btn-sm"
+                (click)="cancelRename()"
+                [disabled]="cargando()"
+              >
+                Cancelar
+              </button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Estado vacío -->
+  <div *ngIf="!cargando() && !productos().length" class="text-muted small">
+    No hay productos.
+    <button
+      *ngIf="isAdmin()"
+      class="btn btn-link p-0 align-baseline"
+      (click)="add()"
+    >
+      Crear el primero
+    </button>.
+  </div>
+</div>

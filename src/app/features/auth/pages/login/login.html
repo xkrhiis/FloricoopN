@@ -1,0 +1,50 @@
+<div class="min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="login-box" style="width: 520px; max-width: 92vw;">
+    <div class="card card-outline card-primary shadow">
+      <div class="card-header text-center">
+        <h1 class="h2 mb-0">Login</h1>
+      </div>
+
+      <form class="card-body" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label for="username" class="font-weight-600">Usuario</label>
+          <input id="username" type="text" class="form-control form-control-lg"
+                 formControlName="username" autocomplete="username" />
+          <small class="text-danger" *ngIf="form.get('username')?.touched && form.get('username')?.invalid">
+            Requerido
+          </small>
+        </div>
+
+        <div class="form-group mb-1">
+          <label for="password" class="font-weight-600">Password</label>
+          <div class="input-group input-group-lg">
+            <input id="password" [type]="show ? 'text' : 'password'"
+                   class="form-control" formControlName="password"
+                   autocomplete="current-password" />
+            <div class="input-group-append">
+              <button type="button" class="btn btn-outline-secondary" (click)="toggle()" tabindex="-1"
+                      [attr.aria-label]="show ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <i class="far" [ngClass]="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <small class="text-danger d-block" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+            Requerido
+          </small>
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger py-2 px-3 my-3">
+          {{ error }}
+        </div>
+
+        <button class="btn btn-primary btn-lg btn-block mt-3" [disabled]="form.invalid">
+          Entrar
+        </button>
+      </form>
+
+      <div class="card-footer text-center text-muted small">
+        Tips: usuario <code>admin</code> o <code>user</code> / pass <code>admin</code> (según tu AuthService)
+      </div>
+    </div>
+  </div>
+</div>
