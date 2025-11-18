@@ -1,34 +1,76 @@
+// src/app/app.routes.ts
 import { Routes } from '@angular/router';
+
+// Layout principal
 import { ShellComponent } from './layout/shell/shell';
+
+// Guards
 import { authGuard } from './core/guards/auth-guard';
+import { adminGuard } from './core/guards/admin.guard';
+
+// Auth
+import { LoginComponent } from './features/auth/pages/login/login';
+
+// Dashboard
+import { DashboardComponent } from './features/dashboard/pages/dashboard/dashboard';
+
+// Inventario
+import { ProductosListaComponent } from './features/inventario/pages/productos-lista/productos-lista';
+
+// Usuarios
+import { UsuariosListaComponent } from './features/usuarios/pages/usuarios-lista/usuarios-lista';
+
+// Historial / Reportes
+import { HistorialInventarioComponent } from './features/historial-inventario/historial-inventario.component';
+import { ReportesInventarioComponent } from './features/reportes-inventario/reportes-inventario.component';
 
 export const routes: Routes = [
+  // 1) LOGIN (pública)
   {
     path: 'auth/login',
-    loadComponent: () => import('./features/auth/pages/login/login').then(m => m.LoginComponent)
+    component: LoginComponent,
   },
+
+  // 2) ZONA PRIVADA (dentro del Shell)
   {
     path: '',
     component: ShellComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard], // debe estar logueado
     children: [
-      {
-        path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/pages/dashboard/dashboard')
-          .then(m => m.DashboardComponent)
-      },
+      // Dashboard
+      { path: 'dashboard', component: DashboardComponent },
+
+      // 👇 SOLO ADMIN: Inventario
       {
         path: 'inventario',
-        loadComponent: () => import('./features/inventario/pages/productos-lista/productos-lista')
-          .then(m => m.ProductosListaComponent)
+        component: ProductosListaComponent,
+        canActivate: [adminGuard],
       },
+
+      // 👇 SOLO ADMIN: Gestión de usuarios
       {
         path: 'usuarios',
-        loadComponent: () => import('./features/usuarios/pages/usuarios-lista/usuarios-lista')
-          .then(m => m.UsuariosListaComponent)
+        component: UsuariosListaComponent,
+        canActivate: [adminGuard],
       },
-      { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
-    ]
+
+      // Historial (para cualquier usuario autenticado)
+      {
+        path: 'historial',
+        component: HistorialInventarioComponent,
+      },
+
+      // Reportes
+      {
+        path: 'reportes',
+        component: ReportesInventarioComponent,
+      },
+
+      // Redirección por defecto
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+    ],
   },
-  { path: '**', redirectTo: '' }
+
+  // 3) Cualquier otra ruta → raíz
+  { path: '**', redirectTo: '' },
 ];

@@ -23,12 +23,13 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+
+            /* 👇 AQUÍ CAMBIA */
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/favicon.ico",
+              "src/assets"
             ],
+
             "styles": [
               "src/styles.scss"
             ]
@@ -60,8 +61,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-          "proxyConfig": "proxy.conf.json"
-            },
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "floricoop:build:production"
@@ -77,19 +78,20 @@
         },
         "test": {
           "builder": "@angular/build:karma",
-          "options": { 
+          "options": {
             "polyfills": [
               "zone.js",
               "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
+
+            /* 👇 TAMBIÉN AQUÍ */
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/favicon.ico",
+              "src/assets"
             ],
+
             "styles": [
               "src/styles.scss"
             ]
@@ -97,5 +99,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

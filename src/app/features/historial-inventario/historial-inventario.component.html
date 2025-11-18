@@ -1,0 +1,209 @@
+<!-- src/app/features/historial-inventario/historial-inventario.component.html -->
+
+<!-- ================== VISTA NORMAL (PANTALLA) ================== -->
+<div class="screen-only">
+  <!-- Título + botón PDF -->
+  <div
+    class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"
+  >
+    <div>
+      <h1 class="h3 mb-1">Historial de Inventario</h1>
+      <p class="text-muted mb-0">
+        Registros de recepción de productos en la cooperativa. Incluye fecha,
+        lote, producto, color, fechas, cantidad, valor total y usuario que
+        recepcionó.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-success mt-2 mt-md-0"
+      (click)="descargarPDF()"
+    >
+      <i class="fas fa-file-pdf mr-1"></i>
+      Descargar reporte PDF
+    </button>
+  </div>
+
+  <!-- Cargando -->
+  <div *ngIf="cargando" class="p-3 text-center text-muted">
+    <span class="mr-2"><i class="fas fa-circle-notch fa-spin"></i></span>
+    Cargando historial...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <!-- Tabla sencilla COMO ANTES -->
+  <table
+    *ngIf="!cargando && registros.length"
+    class="table table-hover align-middle"
+  >
+    <thead class="thead-light">
+      <tr>
+        <th>Fecha registro</th>
+        <th>Lote</th>
+        <th>Producto</th>
+        <th>Color</th>
+        <th class="text-right">Precio unitario</th>
+        <th class="text-right">Cantidad</th>
+        <th>Fecha ingreso</th>
+        <th>Fecha límite</th>
+        <th class="text-right">Valor total</th>
+        <th>Recepcionado por</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of registros">
+        <td>
+          {{ r.fecha_registro | date: 'dd/MM/yyyy HH:mm':'UTC' }}
+        </td>
+        <td>{{ r.lote }}</td>
+        <td>{{ r.producto }}</td>
+        <td>{{ r.color || '—' }}</td>
+
+        <td class="text-right">
+          {{
+            r.precio_unitario | currency:'CLP':'symbol-narrow':'1.0-0'
+          }}
+        </td>
+
+        <td class="text-right">
+          {{ r.cantidad }}
+        </td>
+
+        <td>
+          {{
+            r.fecha_ingreso
+              ? (r.fecha_ingreso | date:'dd/MM/yyyy')
+              : '—'
+          }}
+        </td>
+
+        <td>
+          {{
+            r.fecha_limite
+              ? (r.fecha_limite | date:'dd/MM/yyyy')
+              : '—'
+          }}
+        </td>
+
+        <td class="text-right">
+          {{
+            valorTotal(r) | currency:'CLP':'symbol-narrow':'1.0-0'
+          }}
+        </td>
+
+        <td>{{ r.usuario }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Sin datos -->
+  <div
+    *ngIf="!cargando && !registros.length && !error"
+    class="p-4 text-center text-muted"
+  >
+    Aún no hay registros de inventario.
+  </div>
+</div>
+
+<!-- ================== VISTA PARA IMPRIMIR (PDF) ================== -->
+<div class="print-only">
+  <div class="report-sheet">
+    <!-- Encabezado -->
+    <header class="report-header">
+      <h1 class="report-title">FloriCoop - Historial de Inventario</h1>
+      <p class="report-subtitle">
+        Generado:
+        {{ generadoEn | date:'dd-MM-yyyy, H:mm:ss' }} hrs
+      </p>
+    </header>
+
+    <!-- Resumen -->
+    <section class="report-summary">
+      <p class="mb-1">
+        <strong>Total de registros:</strong> {{ totalRegistros }}
+      </p>
+      <p class="mb-1">
+        <strong>Unidades totales:</strong> {{ unidadesTotales }}
+      </p>
+      <p class="mb-1">
+        <strong>Valor total estimado:</strong>
+        {{
+          valorTotalEstimado | currency:'CLP':'symbol-narrow':'1.0-0'
+        }}
+      </p>
+      <p class="mb-0">
+        <strong>Precio unitario promedio:</strong>
+        {{
+          precioUnitarioPromedio | currency:'CLP':'symbol-narrow':'1.0-0'
+        }}
+      </p>
+    </section>
+
+    <!-- Tabla morada tipo reporte -->
+    <table class="table table-hover report-table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Fecha registro</th>
+          <th>Lote</th>
+          <th>Producto</th>
+          <th>Color</th>
+          <th class="text-right">Precio unitario</th>
+          <th class="text-right">Cantidad</th>
+          <th>Fecha ingreso</th>
+          <th>Fecha límite</th>
+          <th class="text-right">Valor total</th>
+          <th>Recepcionado por</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of registros">
+          <td>
+            {{ r.fecha_registro | date:'dd/MM/yyyy HH:mm':'UTC' }}
+          </td>
+          <td>{{ r.lote }}</td>
+          <td>{{ r.producto }}</td>
+          <td>{{ r.color || '—' }}</td>
+
+          <td class="text-right">
+            {{
+              r.precio_unitario | currency:'CLP':'symbol-narrow':'1.0-0'
+            }}
+          </td>
+
+          <td class="text-right">
+            {{ r.cantidad }}
+          </td>
+
+          <td>
+            {{
+              r.fecha_ingreso
+                ? (r.fecha_ingreso | date:'dd/MM/yyyy')
+                : '—'
+            }}
+          </td>
+
+          <td>
+            {{
+              r.fecha_limite
+                ? (r.fecha_limite | date:'dd/MM/yyyy')
+                : '—'
+            }}
+          </td>
+
+          <td class="text-right">
+            {{
+              valorTotal(r) | currency:'CLP':'symbol-narrow':'1.0-0'
+            }}
+          </td>
+
+          <td>{{ r.usuario }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

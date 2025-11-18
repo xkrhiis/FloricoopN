@@ -1,23 +1,53 @@
-:root{
-  --fc-primary: #2e7d32;
-  --fc-primary-600:#256b2b;
-  --fc-accent:  #2bbbad;
-  --fc-warn:    #e53935;
-  --fc-info:    #1e88e5;
-  --fc-ok:      #43a047;
-  --fc-muted:   #6b7280;
-  --fc-bg:      #f4f7f9;
-  --fc-card:    #ffffff;
-  --fc-shadow:  0 8px 20px rgba(0,0,0,.06);
-  --fc-dot: rgba(98,110,121,.05);
-  --fc-dot-size: 36px;
+:root {
+  /* ===========================
+     Paleta Floricoop
+     =========================== */
+
+  /* Branding principal */
+  --fc-primary:       #60A000;  /* verde principal (botones, acciones) */
+  --fc-primary-600:   #3D6820;  /* verde oscuro (hover, textos destacados) */
+  --fc-primary-soft:  #A7D45A;  /* verde claro (fondos suaves, OK) */
+
+  --fc-accent:        #E06000;  /* naranja principal (botón secundario, énfasis) */
+  --fc-accent-dark:   #C9540D;  /* naranja profundo (hover, mermas) */
+
+  --fc-gold:          #E0C000;  /* amarillo dorado (indicadores, resúmenes) */
+  --fc-gold-soft:     #FFF6D5;  /* amarillo suave (alertas vencimiento) */
+
+  /* Neutros */
+  --fc-bg:            #F7F7F5;  /* fondo general de la app */
+  --fc-card:          #FFFFFF;  /* fondo de tarjetas/tablas */
+  --fc-border:        #E3E3DD;  /* bordes suaves */
+
+  --fc-text-main:     #1F2933;  /* títulos, labels */
+  --fc-muted:         #6B7280;  /* textos secundarios */
+
+  /* Estados */
+  --fc-ok:            #2F855A;  /* éxito */
+  --fc-warn:          #F59E0B;  /* advertencia (stock bajo, vencimiento) */
+  --fc-danger:        #DC2626;  /* peligro (mermas críticas, eliminar) */
+  --fc-info:          #2563EB;  /* info */
+
+  /* Otros */
+  --fc-shadow:        0 8px 20px rgba(0,0,0,.06);
+  --fc-dot:           rgba(98,110,121,.04);
+  --fc-dot-size:      36px;
 }
 
-html, body { height: 100%; }
+/* ===========================
+   Global
+   =========================== */
 
-body{
-  color:#111827;
-  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol", sans-serif;
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--fc-text-main);
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans",
+    "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol", sans-serif;
 
   background-color: var(--fc-bg);
   background-image:
@@ -29,83 +59,285 @@ body{
   background-attachment: fixed;
 }
 
-a { color: var(--fc-accent); }
-a:hover { color: #219185; }
+a {
+  color: var(--fc-accent);
+}
+a:hover {
+  color: var(--fc-accent-dark);
+}
 
-.navbar-brand{
+/* ===========================
+   NAVBAR / LAYOUT
+   =========================== */
+
+.app-navbar {
+  padding-top: .35rem;
+  padding-bottom: .35rem;
+  align-items: center;
+}
+
+.navbar-brand {
   font-weight: 800;
-  letter-spacing:.3px;
-  color:#0b3d2c !important;
-}
-.main-header{
-  background: linear-gradient(180deg,#ffffff, #f7fafb);
-  border-bottom: 1px solid #e5e7eb;
+  letter-spacing: .3px;
+  color: var(--fc-primary-600) !important;
 }
 
-.btn-primary{
-  background: var(--fc-primary);
-  border-color: var(--fc-primary);
+/* Logo Floricoop en la barra */
+.brand-logo {
+  height: 44px;   /* tamaño del logo en el navbar */
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
-.btn-primary:hover{
-  background: var(--fc-primary-600);
+
+.main-header {
+  background: linear-gradient(180deg, #ffffff, #f7fafb);
+  border-bottom: 1px solid var(--fc-border);
+}
+
+/* extra clases usadas en shell.html */
+.app-brand .brand-text {
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+
+.app-menu .nav-link.app-nav-link {
+  font-weight: 500;
+  color: var(--fc-text-main);
+}
+
+.app-menu .nav-item.active .nav-link.app-nav-link,
+.app-menu .nav-link.app-nav-link.active {
+  color: var(--fc-primary);
+  border-bottom: 2px solid var(--fc-primary);
+}
+
+.badge-role {
+  background-color: rgba(96,160,0,0.09);
+  color: var(--fc-primary-600);
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.app-footer {
+  border-top: 1px solid var(--fc-border);
+  background-color: #ffffff;
+  padding-top: .6rem;
+  padding-bottom: .6rem;
+}
+
+/* ===========================
+   Botones
+   =========================== */
+
+/* principal: verde */
+.btn-primary {
+  background-color: var(--fc-primary);
+  border-color: var(--fc-primary);
+  color: #fff;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--fc-primary-600);
   border-color: var(--fc-primary-600);
 }
-.btn-outline-primary{
+
+/* secundario: naranja (usa .btn-accent o .btn-secondary) */
+.btn-secondary,
+.btn-accent {
+  background-color: var(--fc-accent);
+  border-color: var(--fc-accent-dark);
+  color: #fff;
+}
+.btn-secondary:hover,
+.btn-accent:hover {
+  background-color: var(--fc-accent-dark);
+  border-color: var(--fc-accent-dark);
+}
+
+/* outline primary */
+.btn-outline-primary {
   color: var(--fc-primary);
   border-color: var(--fc-primary);
 }
-.btn-outline-primary:hover{
+.btn-outline-primary:hover {
   background: var(--fc-primary);
   border-color: var(--fc-primary);
   color: #fff;
 }
 
-.fc-kpi{
+/* peligro: rojo para eliminar, logout, etc. */
+.btn-danger {
+  background-color: var(--fc-danger);
+  border-color: var(--fc-danger);
+  color: #fff;
+}
+.btn-danger:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.btn-outline-danger {
+  color: var(--fc-danger);
+  border-color: var(--fc-danger);
+}
+.btn-outline-danger:hover {
+  background-color: var(--fc-danger);
+  border-color: var(--fc-danger);
+  color: #fff;
+}
+
+/* botones un poco más redondeados por defecto */
+.btn {
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* ===========================
+   TABS de alertas de inventario
+   =========================== */
+
+.fc-alert-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;        /* separación entre pestañas */
+}
+
+.fc-alert-tab {
+  border-radius: 999px;
+  padding: 0.45rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 1px solid var(--fc-border);
+  background-color: #f9fafb;
+  color: var(--fc-text-main);
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease,
+              box-shadow .15s ease, transform .08s ease;
+}
+
+.fc-alert-tab:hover {
+  background-color: #e5e7eb;
+}
+
+/* Activa: usa el verde principal */
+.fc-alert-tab--active {
+  background-color: var(--fc-primary);
+  border-color: var(--fc-primary);
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.02);
+  transform: translateY(-1px);
+}
+
+/* ===========================
+   KPI cards
+   =========================== */
+
+.fc-kpi {
   background: var(--fc-card);
-  border: 1px solid #eef2f7;
+  border: 1px solid var(--fc-border);
   box-shadow: var(--fc-shadow);
   border-radius: 14px;
   overflow: hidden;
 }
-.fc-kpi .fc-kpi-head{
+.fc-kpi .fc-kpi-head {
   padding: 18px 20px 12px;
   font-weight: 700;
-  color:#374151;
+  color: #374151;
 }
-.fc-kpi .fc-kpi-value{
+.fc-kpi .fc-kpi-value {
   font-size: 42px;
   font-weight: 700;
   line-height: 1;
   padding: 0 20px 16px;
 }
-.fc-kpi--blue  .fc-kpi-bar{ background:#e8f1ff; }
-.fc-kpi--green .fc-kpi-bar{ background:#e8f6ed; }
-.fc-kpi--warn  .fc-kpi-bar{ background:#fde8e7; }
-.fc-kpi--time  .fc-kpi-bar{ background:#fff5db; }
-.fc-kpi .fc-kpi-bar{
-  padding:10px 20px; color:#374151; font-weight:600;
+
+/* Usar estos tonos para distintos estados */
+.fc-kpi--blue  .fc-kpi-bar { background: #e8f1ff; }
+.fc-kpi--green .fc-kpi-bar { background: rgba(167, 212, 90, 0.25); } /* verde claro */
+.fc-kpi--warn  .fc-kpi-bar { background: var(--fc-gold-soft); }
+.fc-kpi--time  .fc-kpi-bar { background: #fff5db; }
+
+.fc-kpi .fc-kpi-bar {
+  padding: 10px 20px;
+  color: #374151;
+  font-weight: 600;
 }
 
-.card{
+/* ===========================
+   Cards y tablas
+   =========================== */
+
+.card {
   border-radius: 14px;
-  border: 1px solid #eef2f7;
+  border: 1px solid var(--fc-border);
   box-shadow: var(--fc-shadow);
+  background-color: var(--fc-card);
 }
 
-.table thead th{ border-bottom: 1px solid #e5e7eb; color:#4b5563; }
-.table td, .table th{ vertical-align: middle; }
+.table thead th {
+  border-bottom: 1px solid #e5e7eb;
+  color: #4b5563;
+}
+.table td,
+.table th {
+  vertical-align: middle;
+}
 
-.fc-login-card{
+/* ===========================
+   Login
+   =========================== */
+
+.fc-login-card {
   max-width: 680px;
   margin: 48px auto;
   border-radius: 16px;
   box-shadow: var(--fc-shadow);
-  border: 1px solid #eef2f7;
+  border: 1px solid var(--fc-border);
 }
 
-.badge-info{ background: var(--fc-accent); }
-.badge-danger{ background: var(--fc-warn); }
-.text-muted{ color: var(--fc-muted) !important; }
+/* ===========================
+   Badges y textos
+   =========================== */
+
+.badge-info {
+  background: var(--fc-info);
+}
+.badge-danger {
+  background: var(--fc-danger);
+}
+.badge-success {
+  background: var(--fc-ok);
+}
+.badge-warning {
+  background: var(--fc-warn);
+}
+
+.text-muted {
+  color: var(--fc-muted) !important;
+}
+
+/* ===========================
+   Botones de acciones en Inventario
+   =========================== */
+
+.fc-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;              /* separación entre botones */
+}
+
+.fc-actions .btn {
+  min-width: 96px;         /* mismo ancho mínimo para ambos */
+  justify-content: center; /* centra el texto dentro del botón */
+  padding-left: 0.9rem;
+  padding-right: 0.9rem;
+}
+
+/* ===========================
+   Animaciones / hover
+   =========================== */
 
 @media (prefers-reduced-motion: no-preference) {
   .reveal {
@@ -115,17 +347,145 @@ a:hover { color: #219185; }
     animation-delay: calc(var(--i, 0) * 90ms);
     will-change: opacity, transform;
   }
-  @keyframes fc-in { to { opacity: 1; transform: none; } }
 
-  .fc-kpi, .card{
+  @keyframes fc-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .fc-kpi,
+  .card {
     transition: transform .18s ease, box-shadow .18s ease;
   }
-  .fc-kpi:hover, .card:hover{
+  .fc-kpi:hover,
+  .card:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(0,0,0,.08);
   }
 }
 
-@media (prefers-reduced-motion: reduce){
-  * { transition: none !important; animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+/* ===========================
+   Tablas de inventario / usuarios
+   =========================== */
+
+/* Resaltar filas bajo mínimo (opcional) */
+.row-bajo-minimo {
+  background-color: rgba(224, 192, 0, 0.06);
+}
+
+/* Contenedor de botones de acción */
+.table-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Todos los botones con el mismo largo */
+.table-actions .btn {
+  min-width: 90px;
+  justify-content: center;
+}
+
+/* Espacio entre Editar y Eliminar */
+.table-actions .btn + .btn {
+  margin-left: 0.4rem;
+}
+
+/* ===========================
+   Inventario – tabla y acciones
+   =========================== */
+
+/* Header de la tarjeta de inventario */
+.btn-header-registrar {
+  padding: 0.35rem 1.2rem;
+  font-weight: 600;
+}
+
+/* Tabla más compacta y alineada */
+.table-inventario th,
+.table-inventario td {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+.table-inventario thead th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #6b7280;
+  border-top: none;
+}
+
+/* Alinear numéricos */
+.table-inventario th.text-center,
+.table-inventario td.text-center {
+  text-align: center;
+}
+
+/* Columna de acciones alineada a la derecha */
+.table-inventario th.columna-acciones {
+  text-align: right;
+}
+
+/* Fila con producto bajo mínimo (ya la estabas usando, la dejamos bonita) */
+.row-bajo-minimo {
+  background-color: rgba(224, 192, 0, 0.06);
+}
+
+/* Botones Editar / Eliminar con mismo tamaño y espacio */
+.table-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
+.table-actions .btn {
+  min-width: 90px;
+  justify-content: center;
+}
+
+.table-actions .btn + .btn {
+  margin-left: 0.4rem;
+}
+
+/* ==== Tabla de inventario ==== */
+
+.table-inventario thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-inventario tbody td {
+  vertical-align: middle;
+}
+
+/* Resaltar filas bajo mínimo */
+.table-inventario tbody tr.row-bajo-minimo {
+  background-color: #fff9e6;
+}
+
+/* Columna de acciones prolija */
+.acciones-header {
+  text-align: center !important;
+}
+
+.acciones-col {
+  text-align: center !important;
+}
+
+.acciones-group .btn {
+  min-width: 92px;
+}
+
+.acciones-group .btn + .btn {
+  margin-left: 0.35rem;
 }

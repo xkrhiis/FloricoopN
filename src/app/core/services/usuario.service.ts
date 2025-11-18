@@ -1,24 +1,33 @@
-// src/app/core/services/usuarios.ts
+// src/app/core/services/usuarios.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export type Role = 'admin' | 'user';
+
 export interface AppUser {
   id?: number;
   username: string;
-  password?: string;           // solo para crear/actualizar
-  role: 'admin' | 'user';
-  created_at?: string;         // viene de la API
+  password?: string;
+  role: Role;
+  created_at?: string; // alias de "creado_en" en la API
 }
+
+// Alias opcional
+export type Usuario = AppUser;
 
 @Injectable({ providedIn: 'root' })
 export class UsuariosService {
-  private base = '/api/usuarios';   // pasa por el proxy de Angular
+  private readonly base = '/api/usuarios';
 
   constructor(private http: HttpClient) {}
 
   list(): Observable<AppUser[]> {
     return this.http.get<AppUser[]>(this.base);
+  }
+
+  get(id: number): Observable<AppUser> {
+    return this.http.get<AppUser>(`${this.base}/${id}`);
   }
 
   create(data: Partial<AppUser>): Observable<{ id: number }> {

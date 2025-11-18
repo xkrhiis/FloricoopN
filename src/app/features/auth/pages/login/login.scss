@@ -1,71 +1,73 @@
-.login-wrapper {
-  max-width: 420px;
+/* Contenedor principal del login */
+.min-vh-100 {
+  background: #f5f7fb;
+}
+
+/* Caja que contiene la card de login */
+.login-box {
   margin: 10vh auto;
-  padding: 24px 28px;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
 }
 
-h1 {
-  margin: 0 0 18px;
-  font-size: 42px;
-  line-height: 1.1;
+/* Card principal del login */
+.card.card-outline.card-primary {
+  border-radius: 16px;
+  border-top: 4px solid #4f77ff;
 }
 
-label {
-  display: block;
+/* Header del login */
+.card-header h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+/* Tipografía un poco más marcada en labels */
+.font-weight-600 {
   font-weight: 600;
-  margin: 12px 0 6px;
 }
 
-input {
-  width: 100%;
-  display: block;
-  padding: 10px 12px;
+/* Inputs grandes del formulario */
+.form-control-lg {
+  border-radius: 10px;
   border: 1px solid #d6d6d6;
-  border-radius: 10px;
-  outline: none;
-  font-size: 16px;
 }
 
-.pass-row {
-  position: relative;
-
-  .eye {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 6px;
-    line-height: 1;
-  }
+/* Grupo de contraseña con botón de ojo */
+.input-group-lg .form-control {
+  border-radius: 10px 0 0 10px;
 }
 
-.submit {
-  margin-top: 16px;
-  width: 100%;
-  padding: 10px 12px;
+.input-group-lg .btn-outline-secondary {
+  border-radius: 0 10px 10px 0;
+  border-color: #d6d6d6;
+}
+
+/* Icono del ojo */
+.input-group-lg .btn-outline-secondary i {
+  font-size: 18px;
+}
+
+/* Botón principal */
+.btn-primary.btn-lg {
   border-radius: 10px;
-  border: 0;
   font-weight: 700;
   font-size: 16px;
   background: #4f77ff;
-  color: #fff;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-  }
+  border-color: #4f77ff;
 }
 
-.error {
-  margin-top: 10px;
-  color: #c0392b;
-  font-weight: 600;
+.btn-primary.btn-lg:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ajuste visual del mensaje de error de login */
+.alert-danger {
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* Pequeño refinamiento del footer */
+.card-footer {
+  border-top: 0;
 }

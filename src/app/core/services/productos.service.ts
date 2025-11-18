@@ -1,67 +1,74 @@
+// src/app/core/services/productos.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 export interface Producto {
   id?: number;
+
+  // Datos principales
   nombre: string;
+  lote?: string;
+  color?: string;
+
+  // Precios y stock
   precio: number;
   stock?: number;
-  activo?: boolean;
+  min?: number;                 // stock mínimo
+  precio_total?: number;        // puede venir calculado desde la API
+
+  // Fechas
+  fecha_ingreso?: string;       // string ISO (ej: '2025-11-16')
+  fecha_limite?: string | null; // puede ser null
+
+  // Estado
+  activo?: boolean | number;    // boolean en front, TINYINT(1) en BD
+
+  // Info de creación
   creado_en?: string;
-  min?: number; // necesario para el template (p.min ?? 0)
 }
-
-// Tipos para aceptar respuestas directas o “envueltas”
-type ListApiResp =
-  | Producto[]
-  | { ok: boolean; data: Producto[]; total?: number };
-
-type ItemApiResp =
-  | Producto
-  | { ok: boolean; data: Producto };
 
 @Injectable({ providedIn: 'root' })
 export class ProductosService {
-  // Gracias al proxy: /api -> http://localhost:3000
-  private base = '/api/productos';
+  // Gracias al proxy, esto apunta a http://localhost:3000/api/productos
+  private readonly baseUrl = '/api/productos';
 
   constructor(private http: HttpClient) {}
 
-  /** Devuelve siempre Producto[] aunque el backend envíe {ok,data} */
+  /** Lista completa de productos activos */
   list(): Observable<Producto[]> {
-    return this.http.get<ListApiResp>(this.base).pipe(
-      map((res) => (Array.isArray(res) ? res : (res?.data ?? [])))
-    );
+    return this.http.get<Producto[]>(this.baseUrl);
   }
 
-  /** Devuelve siempre Producto aunque el backend envíe {ok,data} */
+  /** Obtiene un producto por id */
   get(id: number): Observable<Producto> {
-    return this.http.get<ItemApiResp>(`${this.base}/${id}`).pipe(
-      map((res) => (res as any)?.data ?? (res as Producto))
-    );
+    return this.http.get<Producto>(`${this.baseUrl}/${id}`);
   }
 
-  /** Crea un producto (con valores por defecto si faltan) */
-  create(data: Partial<Producto>) {
+  /** Crea un producto nuevo */
+  create(data: Partial<Producto>): Observable<{ id: number }> {
     const body: Partial<Producto> = {
-      nombre: data.nombre!,               // requerido
+      nombre: data.nombre!,           // requerido
+      lote: data.lote,
+      color: data.color,
       precio: data.precio ?? 0,
-      stock:  data.stock  ?? 0,
+      stock: data.stock ?? 0,
+      min: data.min ?? 0,
+      fecha_ingreso: data.fecha_ingreso,
+      fecha_limite: data.fecha_limite ?? null,
       activo: data.activo ?? true,
-      min:    data.min    ?? 0
     };
-    return this.http.post<{ id: number }>(this.base, body);
+
+    return this.http.post<{ id: number }>(this.baseUrl, body);
   }
 
   /** Actualiza campos parciales (PATCH) */
-  update(id: number, data: Partial<Producto>) {
-    return this.http.patch(`${this.base}/${id}`, data);
+  update(id: number, data: Partial<Producto>): Observable<Producto> {
+    return this.http.patch<Producto>(`${this.baseUrl}/${id}`, data);
   }
 
-  /** Elimina por id */
-  remove(id: number) {
-    return this.http.delete<{ deleted?: boolean }>(`${this.base}/${id}`);
+  /** Elimina (soft-delete) un producto por id */
+  remove(id: number): Observable<{ deleted?: boolean }> {
+    return this.http.delete<{ deleted?: boolean }>(`${this.baseUrl}/${id}`);
   }
 }

@@ -1,6 +1,261 @@
-<h2>Usuarios</h2>
-<ul>
-  <li *ngFor="let u of usuarios">
-    {{ u.nombre }} <small>({{ u.role }})</small>
-  </li>
-</ul>
+<div class="container-fluid py-4">
+  <!-- Título -->
+  <div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+      <h1 class="h3 font-weight-bold mb-1" style="color:#4b0082">
+        <i class="fas fa-users mr-2 text-secondary"></i>
+        Gestión de usuarios
+      </h1>
+      <p class="text-muted mb-0">
+        Solo los administradores pueden crear, editar o eliminar usuarios.
+      </p>
+    </div>
+
+    <!-- Botón principal arriba (opcional, además del de la card) -->
+    <button
+      type="button"
+      class="btn btn-dark d-none d-md-inline-flex"
+      (click)="nuevoUsuario()">
+      <i class="fas fa-user-plus mr-2"></i>
+      Agregar usuario
+    </button>
+  </div>
+
+  <!-- Tarjetas resumen -->
+  <div class="row mb-4">
+    <!-- Total usuarios -->
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body d-flex align-items-center">
+          <div
+            class="d-flex align-items-center justify-content-center rounded-circle mr-3"
+            style="width:40px;height:40px;background:#eef2ff;color:#4b0082;"
+          >
+            <i class="fas fa-users"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Total de usuarios</div>
+            <div class="h3 mb-0">{{ totalUsuarios }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Administradores -->
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body d-flex align-items-center">
+          <div
+            class="d-flex align-items-center justify-content-center rounded-circle mr-3"
+            style="width:40px;height:40px;background:#e0f2fe;color:#0369a1;"
+          >
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Administradores</div>
+            <div class="h3 mb-0">{{ totalAdmins }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Usuarios estándar -->
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body d-flex align-items-center">
+          <div
+            class="d-flex align-items-center justify-content-center rounded-circle mr-3"
+            style="width:40px;height:40px;background:#ecfeff;color:#0e7490;"
+          >
+            <i class="fas fa-user"></i>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Usuarios estándar</div>
+            <div class="h3 mb-0">{{ totalStandard }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card principal -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="mb-0">
+          <i class="fas fa-users-cog mr-2 text-secondary"></i>
+          Usuarios
+        </h5>
+        <small class="text-muted">Lista de usuarios registrados</small>
+      </div>
+      <button
+        type="button"
+        class="btn btn-sm btn-primary d-inline-flex align-items-center"
+        (click)="nuevoUsuario()">
+        <i class="fas fa-user-plus mr-2"></i>
+        Nuevo usuario
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="card-body border-bottom" *ngIf="formVisible">
+      <form (ngSubmit)="guardar()" class="row g-3">
+        <!-- Usuario -->
+        <div class="col-md-4 mb-3">
+          <label class="form-label small text-muted">
+            <i class="fas fa-user mr-1 text-secondary"></i>
+            Usuario
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="formModel.username"
+            name="username"
+            required />
+        </div>
+
+        <!-- Contraseña -->
+        <div class="col-md-4 mb-3">
+          <label class="form-label small text-muted">
+            <i class="fas fa-lock mr-1 text-secondary"></i>
+            {{ editMode === 'crear'
+              ? 'Contraseña'
+              : 'Nueva contraseña (opcional)' }}
+          </label>
+          <input
+            type="password"
+            class="form-control"
+            [(ngModel)]="formModel.password"
+            name="password"
+            [required]="editMode === 'crear'" />
+        </div>
+
+        <!-- Rol -->
+        <div class="col-md-4 mb-3">
+          <label class="form-label small text-muted">
+            <i class="fas fa-id-badge mr-1 text-secondary"></i>
+            Rol
+          </label>
+          <select
+            class="form-control"
+            [(ngModel)]="formModel.role"
+            name="role"
+            required>
+            <option value="admin">Administrador</option>
+            <option value="user">Usuario</option>
+          </select>
+        </div>
+
+        <!-- Error -->
+        <div class="col-12" *ngIf="error">
+          <div class="alert alert-danger py-2 px-3 mb-0">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            {{ error }}
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="col-12 d-flex justify-content-end mt-2">
+          <button
+            type="button"
+            class="btn btn-outline-secondary mr-2"
+            (click)="cancelar()"
+            [disabled]="guardando">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary d-inline-flex align-items-center"
+            [disabled]="guardando">
+            <span
+              *ngIf="guardando"
+              class="spinner-border spinner-border-sm mr-1"
+            ></span>
+            <i *ngIf="!guardando" class="fas fa-save mr-1"></i>
+            {{ editMode === 'crear' ? 'Crear usuario' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Contenido tabla -->
+    <div class="card-body p-0">
+      <!-- Cargando -->
+      <div *ngIf="cargando" class="p-3 text-center text-muted">
+        <i class="fas fa-circle-notch fa-spin mr-2"></i>
+        Cargando usuarios...
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-responsive" *ngIf="!cargando && usuarios.length">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="thead-light">
+            <tr>
+              <th style="width:60px;">ID</th>
+              <th>Usuario</th>
+              <th style="width:140px;">Rol</th>
+              <th style="width:180px;">Creado</th>
+              <th style="width:150px;" class="text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of usuarios">
+              <td class="text-muted">#{{ u.id }}</td>
+
+              <td>
+                <i class="fas fa-user mr-1 text-secondary"></i>
+                {{ u.username }}
+              </td>
+
+              <td>
+                <span
+                  class="badge badge-pill px-3 py-2"
+                  [ngClass]="u.role === 'admin' ? 'badge-primary' : 'badge-secondary'">
+                  <i
+                    class="fas"
+                    [ngClass]="u.role === 'admin' ? 'fa-user-shield' : 'fa-user'">
+                  </i>
+                  <span class="ml-1">
+                    {{ u.role === 'admin' ? 'Administrador' : 'Usuario' }}
+                  </span>
+                </span>
+              </td>
+
+              <td>
+                <span class="text-muted small">
+                  <i class="far fa-clock mr-1"></i>
+                  {{ u.created_at | date:'dd/MM/yyyy HH:mm':'UTC' }}
+                </span>
+              </td>
+
+              <td class="text-right">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary mr-1"
+                  (click)="editarUsuario(u)">
+                  <i class="fas fa-pen mr-1"></i>
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="eliminarUsuario(u)">
+                  <i class="fas fa-trash-alt mr-1"></i>
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Sin datos -->
+      <div
+        *ngIf="!cargando && !usuarios.length"
+        class="p-4 text-center text-muted">
+        <i class="far fa-smile mr-1"></i>
+        No hay usuarios registrados todavía.
+      </div>
+    </div>
+  </div>
+</div>

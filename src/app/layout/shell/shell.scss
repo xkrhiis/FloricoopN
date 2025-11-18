@@ -1,2 +1,61 @@
-.content-wrapper { background: #f4f6f9; }
-.navbar-brand { letter-spacing: .3px; }
+/* src/app/layout/shell/shell.scss */
+
+.app-navbar {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: #4b0082 !important;
+}
+
+.app-brand .brand-icon {
+  font-size: 1.4rem;
+  margin-right: 0.35rem;
+}
+
+.app-brand .brand-text {
+  font-size: 1.1rem;
+}
+
+.app-menu .nav-link {
+  color: #777;
+  font-weight: 500;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+.app-menu .nav-link i {
+  font-size: 0.95rem;
+}
+
+.app-menu .nav-link.active,
+.app-menu .nav-link:hover {
+  color: #4b0082;
+}
+
+.badge-role {
+  background: #e6f4ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.btn-logout {
+  border-radius: 999px;
+}
+
+.app-content-wrapper {
+  background: #f7f9fc;
+  min-height: calc(100vh - 120px);
+}
+
+.app-footer {
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}

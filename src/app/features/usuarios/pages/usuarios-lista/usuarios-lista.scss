@@ -1,1 +1,56 @@
-.list-group-item { display: flex; justify-content: space-between; }
+/* src/app/features/usuarios/pages/usuarios-lista/usuarios-lista.scss */
+
+.usuarios-card {
+  border-radius: 14px;
+}
+
+.usuarios-header {
+  background: #fff;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.btn-rounded {
+  border-radius: 999px;
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
+}
+
+.usuarios-table thead tr {
+  background: #f8fafc;
+}
+
+.usuarios-table thead th {
+  border-bottom: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+}
+
+.usuarios-table tbody td {
+  vertical-align: middle;
+}
+
+.rol-pill {
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rol-admin {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.rol-user {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-accion {
+  border-radius: 999px;
+  font-size: 0.8rem;
+}

@@ -1,27 +1,30 @@
+// src/app/features/auth/pages/login/login.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule], // 👈 sin RouterLink
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
 })
 export class LoginComponent {
   show = false;
-  form: FormGroup;                 // <-- declarada
-  error: string | null = null;     // <-- ahora existe
+  form: FormGroup;
+  error: string | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router
+    private auth: AuthService
   ) {
-    // <-- inicializamos dentro del constructor (evita TS2729)
     this.form = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
@@ -39,15 +42,20 @@ export class LoginComponent {
 
   submit(): void {
     this.error = null;
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    const { username, password } = this.form.value;
+
+    const { username, password } = this.form.value as {
+      username: string;
+      password: string;
+    };
+
     const ok = this.auth.login(username, password);
-    if (ok) {
-      this.router.navigateByUrl('/dashboard');
-    } else {
+
+    if (!ok) {
       this.error = 'Usuario o contraseña incorrectos';
     }
   }

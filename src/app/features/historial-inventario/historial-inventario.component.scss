@@ -1,0 +1,86 @@
+/* src/app/features/historial-inventario/historial-inventario.component.scss */
+
+:host {
+  display: block;
+}
+
+/* -------- Pantalla vs. impresión -------- */
+
+.screen-only {
+  display: block;
+}
+
+.print-only {
+  display: none;
+}
+
+/* -------- Estilos del reporte PDF (print-only) -------- */
+
+.report-sheet {
+  background: #ffffff;
+  padding: 24px 32px;
+  border-radius: 8px;
+}
+
+.report-title {
+  color: #4b0082; /* morado FloriCoop */
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 0.25rem;
+}
+
+.report-subtitle {
+  font-size: 12px;
+  color: #666666;
+  margin-bottom: 1rem;
+}
+
+.report-summary {
+  font-size: 13px;
+  margin-bottom: 1.25rem;
+}
+
+.report-summary strong {
+  font-weight: 600;
+}
+
+/* Tabla morada tipo reporte */
+.report-table thead {
+  background: #4b0082;
+  color: #ffffff;
+}
+
+.report-table thead th {
+  border-color: #4b0082;
+}
+
+.report-table tbody tr:nth-child(odd) {
+  background: #f7f5ff;
+}
+
+/* -------- Reglas de impresión -------- */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .screen-only {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* Quitar bordes redondeados en la página impresa */
+  .report-sheet {
+    margin: 0;
+    padding: 18mm 20mm;
+    border-radius: 0;
+  }
+
+  .table {
+    font-size: 11px;
+  }
+}

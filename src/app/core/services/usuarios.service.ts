@@ -1,34 +1,48 @@
-// src/app/core/services/usuarios.ts
+// src/app/core/services/usuarios.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export type Role = 'admin' | 'user';
+
 export interface AppUser {
   id?: number;
   username: string;
-  password?: string;           // solo para crear/actualizar
-  role: 'admin' | 'user';
-  created_at?: string;         // viene de la API
+  password?: string;
+  role: Role;
+  created_at?: string; // viene de "creado_en" con alias en la API
 }
+
+// Alias opcional, por si en algún lado usas "Usuario"
+export type Usuario = AppUser;
 
 @Injectable({ providedIn: 'root' })
 export class UsuariosService {
-  private base = '/api/usuarios';   // pasa por el proxy de Angular
+  private readonly base = '/api/usuarios';
 
   constructor(private http: HttpClient) {}
 
+  /** Lista todos los usuarios */
   list(): Observable<AppUser[]> {
     return this.http.get<AppUser[]>(this.base);
   }
 
+  /** Obtiene un usuario por id (por si lo necesitas más adelante) */
+  get(id: number): Observable<AppUser> {
+    return this.http.get<AppUser>(`${this.base}/${id}`);
+  }
+
+  /** Crea un nuevo usuario */
   create(data: Partial<AppUser>): Observable<{ id: number }> {
     return this.http.post<{ id: number }>(this.base, data);
   }
 
+  /** Actualiza campos de un usuario existente */
   update(id: number, data: Partial<AppUser>): Observable<{ updated: boolean }> {
     return this.http.patch<{ updated: boolean }>(`${this.base}/${id}`, data);
   }
 
+  /** Elimina un usuario por id */
   remove(id: number): Observable<{ deleted: boolean }> {
     return this.http.delete<{ deleted: boolean }>(`${this.base}/${id}`);
   }

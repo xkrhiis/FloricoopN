@@ -1,27 +1,88 @@
-<nav class="main-header navbar navbar-expand navbar-white navbar-light">
-  <div class="container">
-    <a class="navbar-brand" routerLink="/">FloriCoop</a>
+<!-- src/app/layout/shell/shell.html -->
 
-    <ul class="navbar-nav ml-3" *ngIf="!isAuthRoute()">
-      <li class="nav-item"><a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Inicio</a></li>
-      <li class="nav-item"><a routerLink="/inventario" routerLinkActive="active" class="nav-link">Inventario</a></li>
-      <li class="nav-item"><a routerLink="/usuarios"   routerLinkActive="active" class="nav-link">Usuarios</a></li>
-    </ul>
+<header>
+  <nav
+    class="main-header navbar navbar-expand navbar-white navbar-light app-navbar"
+  >
+    <div class="container">
+      <!-- Logo / marca -->
+      <a
+        class="navbar-brand app-brand d-flex align-items-center"
+        routerLink="/"
+      >
+        <img
+          src="assets/imagen/FLORICOOP.png"
+          alt="FloriCoop"
+          class="brand-logo mr-2"
+        />
+        <span class="brand-text d-none d-sm-inline">FloriCoop</span>
+      </a>
 
-    <ul class="navbar-nav ml-auto align-items-center" *ngIf="!isAuthRoute()">
-      <li class="nav-item mr-2">
-        <span class="badge badge-info p-2">Rol: {{ auth.currentRole() || '—' }}</span>
-      </li>
-      <li class="nav-item">
-        <button class="btn btn-sm btn-outline-dark" (click)="logout()">
-          <i class="fas fa-sign-out-alt mr-1"></i>Salir
-        </button>
-      </li>
-    </ul>
-  </div>
-</nav>
+      <!-- Menú principal (solo cuando NO estás en rutas de auth) -->
+      <ul
+        class="navbar-nav ml-3 app-menu d-none d-md-flex"
+        *ngIf="!isAuthRoute()"
+      >
+        <li
+          class="nav-item"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <a routerLink="/dashboard" class="nav-link app-nav-link">
+            <i class="fas fa-home mr-1"></i>
+            Inicio
+          </a>
+        </li>
 
-<div class="content-wrapper">
+        <li class="nav-item" routerLinkActive="active">
+          <a routerLink="/inventario" class="nav-link app-nav-link">
+            <i class="fas fa-boxes mr-1"></i>
+            Inventario
+          </a>
+        </li>
+
+        <li class="nav-item" routerLinkActive="active">
+          <a routerLink="/usuarios" class="nav-link app-nav-link">
+            <i class="fas fa-users mr-1"></i>
+            Usuarios
+          </a>
+        </li>
+
+        <li class="nav-item" routerLinkActive="active">
+          <a routerLink="/historial" class="nav-link app-nav-link">
+            <i class="fas fa-chart-line mr-1"></i>
+            Reportes
+          </a>
+        </li>
+      </ul>
+
+      <!-- Info de rol y botón salir -->
+      <ul
+        class="navbar-nav ml-auto align-items-center app-user-nav"
+        *ngIf="!isAuthRoute()"
+      >
+        <li class="nav-item mr-2">
+          <span class="badge badge-pill badge-role px-3 py-2">
+            <i class="fas fa-user-shield mr-1"></i>
+            Rol: {{ auth.currentRole() || '—' }}
+          </span>
+        </li>
+        <li class="nav-item">
+          <button
+            class="btn btn-sm btn-outline-danger btn-logout"
+            (click)="logout()"
+          >
+            <i class="fas fa-sign-out-alt mr-1"></i>
+            Salir
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<!-- Contenido principal -->
+<div class="content-wrapper app-content-wrapper">
   <div class="content">
     <div class="container py-4">
       <router-outlet></router-outlet>
@@ -29,7 +90,7 @@
   </div>
 </div>
 
-<footer class="main-footer small text-muted">
+<footer class="main-footer small text-muted app-footer" *ngIf="!isAuthRoute()">
   <div class="container d-flex justify-content-between">
     <span>© {{ currentYear }} FloriCoop</span>
     <span>@ONESBACK</span>

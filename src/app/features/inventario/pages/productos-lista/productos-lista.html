@@ -1,139 +1,183 @@
-<div class="container py-4">
-  <h2 class="h3 mb-3 d-flex align-items-center gap-2">
-    Inventario
-    <a routerLink="/dashboard" class="btn btn-light btn-sm ml-3">← Volver</a>
+<h2 class="mb-3">Inventario de productos</h2>
 
-    <span class="ms-auto"></span>
-
-    <button
-      *ngIf="isAdmin()"
-      class="btn btn-primary btn-sm"
-      (click)="add()"
-      [disabled]="cargando()"
-      title="Crear nuevo producto"
-    >
-      + Nuevo producto
-    </button>
-  </h2>
-
-  <!-- Alertas -->
-  <div *ngIf="cargando()" class="alert alert-info py-2 mb-3">
-    Cargando productos...
-  </div>
-
-  <div *ngIf="errorMsg()" class="alert alert-danger py-2 mb-3">
-    {{ errorMsg() }}
-  </div>
-
-  <!-- Tabla -->
-  <div class="table-responsive">
-    <table class="table table-sm align-middle">
-      <thead>
-        <tr>
-          <th style="width:56px">#</th>
-          <th>Producto</th>
-          <th style="width:140px" class="text-end">Precio</th>
-          <th style="width:140px" class="text-end">Stock</th>
-          <th style="width:120px" class="text-end">Mínimo</th>
-          <th *ngIf="isAdmin()" style="width:240px">Acciones</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr
-          *ngFor="let p of productos(); let i = index; trackBy: trackById"
-          [class.table-danger]="isLow(p)"
-        >
-          <td>{{ i + 1 }}</td>
-
-          <!-- Nombre con edición inline -->
-          <td>
-            <ng-container *ngIf="editingId() !== p.id; else editNameTpl">
-              <strong>{{ p.nombre }}</strong>
-            </ng-container>
-            <ng-template #editNameTpl>
-              <input
-                class="form-control form-control-sm"
-                [ngModel]="draftName()"
-                (ngModelChange)="draftName.set($event)"
-                maxlength="80"
-                [disabled]="cargando()"
-                autofocus
-              />
-            </ng-template>
-          </td>
-
-          <!-- Precio (solo lectura aquí; cambia a editable si tu API soporta) -->
-          <td class="text-end">
-            {{ p.precio | currency:'CLP':'symbol':'1.0-0' }}
-          </td>
-
-          <!-- Stock: edición directa -->
-          <td>
-            <input
-              type="number"
-              class="form-control form-control-sm text-end"
-              [disabled]="!isAdmin() || cargando()"
-              [ngModel]="p.stock"
-              min="0"
-              (ngModelChange)="setStock(p, $event)"
-              inputmode="numeric"
-            />
-          </td>
-
-          <!-- Mínimo (solo lectura en esta vista; puedes habilitar si quieres) -->
-          <td class="text-end">{{ p.min ?? 0 }}</td>
-
-          <!-- Acciones admin -->
-          <td *ngIf="isAdmin()">
-            <ng-container *ngIf="editingId() !== p.id; else actionsEdit">
-              <button
-                class="btn btn-outline-secondary btn-sm me-2"
-                (click)="startRename(p)"
-                [disabled]="cargando()"
-              >
-                Renombrar
-              </button>
-              <button
-                class="btn btn-outline-danger btn-sm"
-                (click)="remove(p)"
-                [disabled]="cargando()"
-              >
-                Eliminar
-              </button>
-            </ng-container>
-
-            <ng-template #actionsEdit>
-              <button
-                class="btn btn-primary btn-sm me-2"
-                (click)="saveRename(p)"
-                [disabled]="cargando() || !(draftName() || '').trim()"
-              >
-                Guardar
-              </button>
-              <button
-                class="btn btn-light btn-sm"
-                (click)="cancelRename()"
-                [disabled]="cargando()"
-              >
-                Cancelar
-              </button>
-            </ng-template>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Estado vacío -->
-  <div *ngIf="!cargando() && !productos().length" class="text-muted small">
-    No hay productos.
-    <button
-      *ngIf="isAdmin()"
-      class="btn btn-link p-0 align-baseline"
-      (click)="add()"
-    >
-      Crear el primero
-    </button>.
-  </div>
+<!-- Estado de carga -->
+<div *ngIf="cargando" class="text-muted mb-2">
+  Cargando inventario...
 </div>
+
+<!-- Mensaje de error -->
+<div *ngIf="error" class="alert alert-danger mb-3">
+  {{ error }}
+</div>
+
+<!-- Tabla de productos -->
+<table
+  *ngIf="!cargando && productos.length"
+  class="table table-striped table-hover"
+>
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Lote</th>
+      <th>Precio unitario</th>
+      <th>Color</th>
+      <th>Fecha ingreso</th>
+      <th>Fecha límite</th>
+      <th>Stock</th>
+      <th>Precio total</th>
+      <!-- Columna de acciones solo visible para ADMIN -->
+      <th *ngIf="isAdmin" style="width: 120px;">Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let p of productos">
+      <!-- Producto -->
+      <td>{{ p.nombre }}</td>
+
+      <!-- Lote -->
+      <td>{{ p.lote || '—' }}</td>
+
+      <!-- Precio unitario -->
+      <td>
+        {{ p.precio | currency:'CLP':'symbol-narrow':'1.0-0' }}
+      </td>
+
+      <!-- Color -->
+      <td>{{ p.color || '—' }}</td>
+
+      <!-- Fecha ingreso -->
+      <td>
+        {{ p.fecha_ingreso ? (p.fecha_ingreso | date:'dd/MM/yyyy') : '—' }}
+      </td>
+
+      <!-- Fecha límite -->
+      <td>
+        {{ p.fecha_limite ? (p.fecha_limite | date:'dd/MM/yyyy') : '—' }}
+      </td>
+
+      <!-- Stock -->
+      <td>{{ p.stock ?? 0 }}</td>
+
+      <!-- Precio total = precio * stock (o el calculado que viene de la API) -->
+      <td>
+        {{
+          (p.precio_total || (p.precio * (p.stock || 0)))
+            | currency:'CLP':'symbol-narrow':'1.0-0'
+        }}
+      </td>
+
+      <!-- Botón eliminar solo para ADMIN -->
+      <td *ngIf="isAdmin">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          (click)="eliminarProducto(p)"
+        >
+          Eliminar
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Sin productos -->
+<div *ngIf="!cargando && !productos.length">
+  No hay productos en el inventario.
+</div>
+
+<hr />
+
+<!-- Formulario de alta SOLO para ADMIN -->
+<h3 *ngIf="isAdmin">Agregar nuevo producto</h3>
+
+<form
+  *ngIf="isAdmin"
+  (ngSubmit)="guardarNuevo()"
+  class="form-nuevo d-flex flex-wrap gap-2 align-items-end"
+>
+  <label class="mr-3 mb-2">
+    Nombre:
+    <input
+      class="form-control"
+      [(ngModel)]="nuevo.nombre"
+      name="nombre"
+      required
+    />
+  </label>
+
+  <label class="mr-3 mb-2">
+    Lote:
+    <input
+      class="form-control"
+      [(ngModel)]="nuevo.lote"
+      name="lote"
+    />
+  </label>
+
+  <label class="mr-3 mb-2">
+    Color:
+    <input
+      class="form-control"
+      [(ngModel)]="nuevo.color"
+      name="color"
+    />
+  </label>
+
+  <label class="mr-3 mb-2">
+    Precio:
+    <input
+      type="number"
+      class="form-control"
+      [(ngModel)]="nuevo.precio"
+      name="precio"
+      min="0"
+      required
+    />
+  </label>
+
+  <label class="mr-3 mb-2">
+    Stock:
+    <input
+      type="number"
+      class="form-control"
+      [(ngModel)]="nuevo.stock"
+      name="stock"
+      min="0"
+    />
+  </label>
+
+  <label class="mr-3 mb-2">
+    Fecha ingreso:
+    <input
+      type="date"
+      class="form-control"
+      [(ngModel)]="nuevo.fecha_ingreso"
+      name="fecha_ingreso"
+    />
+  </label>
+
+  <label class="mr-3 mb-2">
+    Fecha límite:
+    <input
+      type="date"
+      class="form-control"
+      [(ngModel)]="nuevo.fecha_limite"
+      name="fecha_limite"
+    />
+  </label>
+
+  <label class="mr-3 mb-2 d-flex align-items-center">
+    Activo:
+    <input
+      type="checkbox"
+      class="ml-2"
+      [(ngModel)]="nuevo.activo"
+      name="activo"
+    />
+  </label>
+
+  <button type="submit" class="btn btn-primary mb-2">
+    Guardar
+  </button>
+</form>
