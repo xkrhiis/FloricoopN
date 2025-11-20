@@ -24,6 +24,9 @@ import { UsuariosListaComponent } from './features/usuarios/pages/usuarios-lista
 import { HistorialInventarioComponent } from './features/historial-inventario/historial-inventario.component';
 import { ReportesInventarioComponent } from './features/reportes-inventario/reportes-inventario.component';
 
+// Mermas
+import { MermasListaComponent } from './features/mermas/pages/mermas-lista/mermas-lista';
+
 export const routes: Routes = [
   // 1) LOGIN (pública)
   {
@@ -44,6 +47,13 @@ export const routes: Routes = [
       {
         path: 'inventario',
         component: ProductosListaComponent,
+        canActivate: [adminGuard],
+      },
+
+      // 👇 SOLO ADMIN: Control de mermas
+      {
+        path: 'mermas',
+        component: MermasListaComponent,
         canActivate: [adminGuard],
       },
 

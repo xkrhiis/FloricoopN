@@ -28,6 +28,19 @@ type NuevoProductoForm = {
   usuario_id: number | null;
 };
 
+// Modelo para edición (no tocamos "activo")
+type EditProductoForm = {
+  id: number;
+  nombre: string;
+  lote: string;
+  color: string;
+  precio: number | null;
+  stock: number | null;
+  min: number | null;
+  fecha_ingreso: string;
+  fecha_limite: string | null;
+};
+
 @Component({
   selector: 'app-productos-lista',
   standalone: true,
@@ -36,10 +49,7 @@ type NuevoProductoForm = {
     <div class="container-fluid py-4">
       <!-- Título -->
       <div class="mb-4">
-        <h1
-          class="h3 font-weight-bold mb-1"
-          style="color: var(--fc-primary-600)"
-        >
+        <h1 class="h3 font-weight-bold mb-1" style="color: var(--fc-primary-600)">
           Inventario de productos
         </h1>
         <p class="text-muted mb-0">
@@ -111,10 +121,14 @@ type NuevoProductoForm = {
           </button>
         </div>
 
-        <!-- Aviso de campos obligatorios -->
+        <!-- Avisos -->
         <div *ngIf="mostrarErrorCampos" class="alert alert-warning mb-0">
           Faltan campos obligatorios por rellenar. Revisa los marcados con
           <span class="text-danger">*</span>.
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger mb-0">
+          {{ error }}
         </div>
 
         <!-- Formulario nuevo producto (solo admin) -->
@@ -128,7 +142,7 @@ type NuevoProductoForm = {
                 type="text"
                 class="form-control"
                 [(ngModel)]="nuevo.nombre"
-                name="nombre"
+                name="nuevo-nombre"
                 required
               />
             </div>
@@ -141,7 +155,7 @@ type NuevoProductoForm = {
                 type="text"
                 class="form-control"
                 [(ngModel)]="nuevo.lote"
-                name="lote"
+                name="nuevo-lote"
                 required
               />
             </div>
@@ -154,7 +168,7 @@ type NuevoProductoForm = {
                 type="text"
                 class="form-control"
                 [(ngModel)]="nuevo.color"
-                name="color"
+                name="nuevo-color"
                 required
               />
             </div>
@@ -167,7 +181,7 @@ type NuevoProductoForm = {
                 type="number"
                 class="form-control"
                 [(ngModel)]="nuevo.precio"
-                name="precio"
+                name="nuevo-precio"
                 min="1"
                 required
               />
@@ -181,7 +195,7 @@ type NuevoProductoForm = {
                 type="number"
                 class="form-control"
                 [(ngModel)]="nuevo.stock"
-                name="stock"
+                name="nuevo-stock"
                 min="1"
                 required
               />
@@ -195,7 +209,7 @@ type NuevoProductoForm = {
                 type="number"
                 class="form-control"
                 [(ngModel)]="nuevo.min"
-                name="min"
+                name="nuevo-min"
                 min="0"
                 required
               />
@@ -209,7 +223,7 @@ type NuevoProductoForm = {
                 type="date"
                 class="form-control"
                 [(ngModel)]="nuevo.fecha_ingreso"
-                name="fecha_ingreso"
+                name="nuevo-fecha-ingreso"
                 required
               />
             </div>
@@ -222,7 +236,7 @@ type NuevoProductoForm = {
                 type="date"
                 class="form-control"
                 [(ngModel)]="nuevo.fecha_limite"
-                name="fecha_limite"
+                name="nuevo-fecha-limite"
                 required
               />
             </div>
@@ -235,7 +249,7 @@ type NuevoProductoForm = {
               <select
                 class="form-control"
                 [(ngModel)]="nuevo.usuario_id"
-                name="usuario_id"
+                name="nuevo-usuario-id"
                 required
               >
                 <option [ngValue]="null" disabled>Seleccione un usuario</option>
@@ -252,7 +266,7 @@ type NuevoProductoForm = {
                   class="form-check-input"
                   id="nuevo-activo"
                   [(ngModel)]="nuevo.activo"
-                  name="activo"
+                  name="nuevo-activo"
                 />
                 <label class="form-check-label small" for="nuevo-activo">
                   Activo
@@ -276,7 +290,7 @@ type NuevoProductoForm = {
           </form>
         </div>
 
-        <!-- Cuerpo de la tabla -->
+        <!-- Cuerpo tabla -->
         <div class="card-body p-0">
           <!-- Cargando -->
           <div *ngIf="cargando" class="p-3 text-center text-muted">
@@ -284,11 +298,6 @@ type NuevoProductoForm = {
               <i class="fas fa-circle-notch fa-spin"></i>
             </span>
             Cargando inventario...
-          </div>
-
-          <!-- Error -->
-          <div *ngIf="error" class="alert alert-danger m-3 mb-0">
-            {{ error }}
           </div>
 
           <!-- Tabla -->
@@ -303,7 +312,7 @@ type NuevoProductoForm = {
                   <th>Lote</th>
                   <th style="width: 140px;">Fecha ingreso</th>
                   <th style="width: 140px;">Fecha límite</th>
-                  <th class="text-center" style="width: 90px;">Stock</th>
+                  <th class="text-right" style="width: 90px;">Stock</th>
                   <th class="text-right" style="width: 130px;">
                     Precio unitario
                   </th>
@@ -313,70 +322,153 @@ type NuevoProductoForm = {
                   <th
                     *ngIf="isAdmin"
                     class="text-right"
-                    style="width: 170px;"
+                    style="width: 190px;"
                   >
                     Acciones
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  *ngFor="let p of productos"
-                  [ngClass]="{
-                    'row-bajo-minimo': (p.stock ?? 0) < (p.min ?? 0)
-                  }"
-                >
-                  <td>{{ p.nombre }}</td>
-                  <td>{{ p.color || '—' }}</td>
-                  <td>{{ p.lote || '—' }}</td>
-                  <td>
-                    {{
-                      p.fecha_ingreso
-                        ? (p.fecha_ingreso | date: 'dd/MM/yyyy')
-                        : '—'
-                    }}
-                  </td>
-                  <td>
-                    {{
-                      p.fecha_limite
-                        ? (p.fecha_limite | date: 'dd/MM/yyyy')
-                        : '—'
-                    }}
-                  </td>
-                  <td class="text-center">
-                    {{ p.stock ?? 0 }}
-                  </td>
-                  <td class="text-right">
-                    {{
-                      p.precio | currency : 'CLP' : 'symbol-narrow' : '1.0-0'
-                    }}
-                  </td>
-                  <td class="text-right">
-                    {{
-                      (p.precio * (p.stock ?? 0))
-                        | currency : 'CLP' : 'symbol-narrow' : '1.0-0'
-                    }}
-                  </td>
-
-                  <!-- Acciones solo ADMIN -->
-                  <td class="text-right" *ngIf="isAdmin">
-                    <div class="table-actions d-inline-flex">
+                <tr *ngFor="let p of productos">
+                  <!-- Fila en modo edición -->
+                  <ng-container *ngIf="editandoId === p.id && editando; else filaLectura">
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="editando!.nombre"
+                        name="edit-nombre-{{ p.id }}"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="editando!.color"
+                        name="edit-color-{{ p.id }}"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="editando!.lote"
+                        name="edit-lote-{{ p.id }}"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="date"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="editando!.fecha_ingreso"
+                        name="edit-fecha-ingreso-{{ p.id }}"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="date"
+                        class="form-control form-control-sm"
+                        [(ngModel)]="editando!.fecha_limite"
+                        name="edit-fecha-limite-{{ p.id }}"
+                      />
+                    </td>
+                    <td class="text-right">
+                      <input
+                        type="number"
+                        class="form-control form-control-sm text-right"
+                        [(ngModel)]="editando!.stock"
+                        name="edit-stock-{{ p.id }}"
+                        min="0"
+                      />
+                    </td>
+                    <td class="text-right">
+                      <input
+                        type="number"
+                        class="form-control form-control-sm text-right"
+                        [(ngModel)]="editando!.precio"
+                        name="edit-precio-{{ p.id }}"
+                        min="0"
+                      />
+                    </td>
+                    <td class="text-right">
+                      {{
+                        (+(editando!.precio || 0) * +(editando!.stock || 0))
+                          | currency : 'CLP' : 'symbol-narrow' : '1.0-0'
+                      }}
+                    </td>
+                    <td class="text-right">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-success mr-2"
+                        (click)="guardarEdicion()"
+                        [disabled]="actualizando"
+                      >
+                        Guardar
+                      </button>
                       <button
                         type="button"
                         class="btn btn-sm btn-outline-secondary"
-                        (click)="editarProducto(p)"
+                        (click)="cancelarEdicion()"
+                        [disabled]="actualizando"
                       >
-                        Editar
+                        Cancelar
                       </button>
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        (click)="eliminarProducto(p)"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
+                    </td>
+                  </ng-container>
+
+                  <!-- Fila normal (solo lectura) -->
+                  <ng-template #filaLectura>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ p.color || '—' }}</td>
+                    <td>{{ p.lote || '—' }}</td>
+                    <td>
+                      {{
+                        p.fecha_ingreso
+                          ? (p.fecha_ingreso | date: 'dd/MM/yyyy')
+                          : '—'
+                      }}
+                    </td>
+                    <td>
+                      {{
+                        p.fecha_limite
+                          ? (p.fecha_limite | date: 'dd/MM/yyyy')
+                          : '—'
+                      }}
+                    </td>
+                    <td class="text-right">
+                      {{ p.stock ?? 0 }}
+                    </td>
+                    <td class="text-right">
+                      {{
+                        p.precio | currency : 'CLP' : 'symbol-narrow' : '1.0-0'
+                      }}
+                    </td>
+                    <td class="text-right">
+                      {{
+                        (p.precio * (p.stock ?? 0))
+                          | currency : 'CLP' : 'symbol-narrow' : '1.0-0'
+                      }}
+                    </td>
+
+                    <td class="text-right" *ngIf="isAdmin">
+                      <div class="table-actions d-inline-flex">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary mr-2"
+                          (click)="editarProducto(p)"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="eliminarProducto(p)"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </ng-template>
                 </tr>
               </tbody>
             </table>
@@ -384,7 +476,7 @@ type NuevoProductoForm = {
 
           <!-- Sin datos -->
           <div
-            *ngIf="!cargando && !productos.length && !error"
+            *ngIf="!cargando && !productos.length"
             class="p-4 text-center text-muted"
           >
             No hay productos registrados todavía.
@@ -400,11 +492,15 @@ export class ProductosListaComponent implements OnInit {
 
   cargando = false;
   guardando = false;
+  actualizando = false;
   error: string | null = null;
   mostrarErrorCampos = false;
 
   nuevoVisible = false;
   nuevo: NuevoProductoForm = this.crearModeloNuevo();
+
+  editandoId: number | null = null;
+  editando: EditProductoForm | null = null;
 
   constructor(
     private productosService: ProductosService,
@@ -457,6 +553,9 @@ export class ProductosListaComponent implements OnInit {
     this.error = null;
 
     if (this.nuevoVisible) {
+      // salgo de modo edición si estaba editando
+      this.editandoId = null;
+      this.editando = null;
       this.nuevo = this.crearModeloNuevo();
     }
   }
@@ -563,8 +662,83 @@ export class ProductosListaComponent implements OnInit {
       });
   }
 
-  editarProducto(_p: Producto): void {
-    alert('Función de edición pendiente de implementar 😊');
+  editarProducto(p: Producto): void {
+    if (!this.isAdmin || !p.id) return;
+
+    this.error = null;
+    this.mostrarErrorCampos = false;
+    this.nuevoVisible = false;
+
+    this.editandoId = p.id;
+    this.editando = {
+      id: p.id,
+      nombre: p.nombre,
+      lote: p.lote ?? '',
+      color: p.color ?? '',
+      precio: p.precio ?? null,
+      stock: p.stock ?? null,
+      min: p.min ?? null,
+      fecha_ingreso: p.fecha_ingreso ?? '',
+      fecha_limite: p.fecha_limite ?? null,
+    };
+  }
+
+  cancelarEdicion(): void {
+    this.editandoId = null;
+    this.editando = null;
+    this.error = null;
+  }
+
+  guardarEdicion(): void {
+    if (!this.isAdmin || !this.editando || !this.editandoId) return;
+
+    const e = this.editando;
+
+    if (
+      !e.nombre ||
+      !e.lote ||
+      !e.color ||
+      !e.fecha_ingreso ||
+      !e.fecha_limite ||
+      e.precio === null ||
+      e.precio < 0 ||
+      e.stock === null ||
+      e.stock < 0 ||
+      e.min === null ||
+      e.min < 0
+    ) {
+      this.error = 'Faltan campos obligatorios o hay valores inválidos.';
+      return;
+    }
+
+    this.error = null;
+    this.actualizando = true;
+
+    this.productosService
+      .update(this.editandoId, {
+        nombre: e.nombre,
+        lote: e.lote,
+        color: e.color,
+        precio: Number(e.precio),
+        stock: Number(e.stock),
+        min: Number(e.min),
+        fecha_ingreso: e.fecha_ingreso,
+        fecha_limite: e.fecha_limite,
+        // IMPORTANTE: no enviamos "activo" aquí
+      })
+      .subscribe({
+        next: () => {
+          this.actualizando = false;
+          this.editandoId = null;
+          this.editando = null;
+          this.cargarProductos();
+        },
+        error: (err: any) => {
+          console.error('Error al actualizar producto', err);
+          this.error = 'No se pudo actualizar el producto.';
+          this.actualizando = false;
+        },
+      });
   }
 
   eliminarProducto(p: Producto): void {
