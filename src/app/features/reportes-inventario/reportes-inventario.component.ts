@@ -1,173 +1,39 @@
 // src/app/features/reportes-inventario/reportes-inventario.component.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ProductosService, Producto } from '../../core/services/productos.service';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+// Chart.js
+import {
+  Chart,
+  ChartConfiguration,
+  registerables,
+} from 'chart.js';
+
+Chart.register(...registerables);
+
 @Component({
   selector: 'app-reportes-inventario',
   standalone: true,
-  imports: [CommonModule, DatePipe, CurrencyPipe],
-  template: `
-    <div class="container-fluid py-4">
-
-      <!-- Encabezado -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 class="h3 font-weight-bold mb-1" style="color:#4b0082">
-            Reportes de Inventario
-          </h1>
-          <p class="text-muted mb-0">
-            Resumen visual del inventario y generación de reporte en PDF
-            basado en los datos actuales de <code>/api/productos</code>.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          class="btn btn-outline-primary"
-          (click)="descargarPdf()"
-          [disabled]="cargando || !productos.length"
-        >
-          <i class="fas fa-file-download mr-2"></i>
-          Descargar reporte PDF
-        </button>
-      </div>
-
-      <!-- Resumen -->
-      <div class="row mb-4" *ngIf="productos.length">
-        <div class="col-md-4 mb-3">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-              <div class="text-muted small mb-1">Total de productos</div>
-              <div class="h3 mb-0">{{ totalProductos }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-              <div class="text-muted small mb-1">Stock total</div>
-              <div class="h3 mb-0">{{ totalStock }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-              <div class="text-muted small mb-1">Valor total estimado</div>
-              <div class="h4 mb-0">
-                {{ totalValor | currency:'CLP':'symbol-narrow':'1.0-0' }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Estado de carga / error -->
-      <div *ngIf="cargando" class="p-3 text-center text-muted">
-        <span class="mr-2"><i class="fas fa-circle-notch fa-spin"></i></span>
-        Cargando datos de inventario...
-      </div>
-
-      <div *ngIf="error" class="alert alert-danger">
-        {{ error }}
-      </div>
-
-      <!-- Tabla de detalle -->
-      <div class="card shadow-sm border-0" *ngIf="!cargando && productos.length">
-        <div class="card-header">
-          <h5 class="mb-0">Detalle de productos incluidos en el reporte</h5>
-        </div>
-
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-              <thead class="thead-light">
-                <tr>
-                  <th>Producto</th>
-                  <th>Lote</th>
-                  <th>Color</th>
-                  <th class="text-right">Precio unitario</th>
-                  <th class="text-right">Stock</th>
-                  <th class="text-right">Mínimo</th>
-                  <th>Fecha ingreso</th>
-                  <th>Fecha límite</th>
-                  <th class="text-right">Precio total</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let p of productos">
-                  <td>{{ p.nombre }}</td>
-                  <td>{{ p.lote || '—' }}</td>
-                  <td>{{ p.color || '—' }}</td>
-
-                  <td class="text-right">
-                    {{ p.precio | currency:'CLP':'symbol-narrow':'1.0-0' }}
-                  </td>
-
-                  <td class="text-right">
-                    {{ p.stock ?? 0 }}
-                  </td>
-
-                  <td class="text-right">
-                    {{ p.min ?? 0 }}
-                  </td>
-
-                  <td>
-                    {{
-                      p.fecha_ingreso
-                        ? (p.fecha_ingreso | date:'dd/MM/yyyy')
-                        : '—'
-                    }}
-                  </td>
-
-                  <td>
-                    {{
-                      p.fecha_limite
-                        ? (p.fecha_limite | date:'dd/MM/yyyy')
-                        : '—'
-                    }}
-                  </td>
-
-                  <td class="text-right">
-                    {{
-                      (p.precio * (p.stock || 0))
-                        | currency:'CLP':'symbol-narrow':'1.0-0'
-                    }}
-                  </td>
-
-                  <td>
-                    <span
-                      class="badge"
-                      [ngClass]="p.activo ? 'badge-success' : 'badge-secondary'"
-                    >
-                      {{ p.activo ? 'Activo' : 'Inactivo' }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sin datos -->
-      <div
-        *ngIf="!cargando && !productos.length && !error"
-        class="p-4 text-center text-muted"
-      >
-        No hay productos registrados para generar el reporte.
-      </div>
-    </div>
-  `,
+  imports: [CommonModule],
+  templateUrl: './reportes-inventario.component.html',
 })
-export class ReportesInventarioComponent implements OnInit {
+export class ReportesInventarioComponent implements OnInit, AfterViewInit {
+  @ViewChild('stockChart') stockChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('estadoChart') estadoChartRef!: ElementRef<HTMLCanvasElement>;
+
+  private stockChart?: Chart;
+  private estadoChart?: Chart;
+
   productos: Producto[] = [];
   cargando = false;
   error: string | null = null;
@@ -175,11 +41,17 @@ export class ReportesInventarioComponent implements OnInit {
   totalProductos = 0;
   totalStock = 0;
   totalValor = 0;
+  precioPromedio = 0;
 
   constructor(private productosService: ProductosService) {}
 
   ngOnInit(): void {
     this.cargarDatos();
+  }
+
+  ngAfterViewInit(): void {
+    // Solo log para confirmar que la vista está lista
+    console.log('ReportesInventario: vista inicializada');
   }
 
   private cargarDatos(): void {
@@ -191,6 +63,13 @@ export class ReportesInventarioComponent implements OnInit {
         this.productos = data;
         this.cargando = false;
         this.calcularResumen();
+
+        console.log('Productos cargados:', this.productos);
+
+        // Esperamos un tick para asegurarnos de que los canvas están en el DOM
+        setTimeout(() => {
+          this.construirGraficos();
+        }, 0);
       },
       error: (err) => {
         console.error('Error al cargar productos para el reporte', err);
@@ -210,9 +89,149 @@ export class ReportesInventarioComponent implements OnInit {
       (acc, p) => acc + (p.precio * (p.stock || 0)),
       0
     );
+    this.precioPromedio =
+      this.totalProductos > 0 ? this.totalValor / this.totalProductos : 0;
   }
 
-  // ---- Generación de PDF ----
+  private construirGraficos(): void {
+    // Si no hay productos, no hacemos nada
+    if (!this.productos.length) {
+      console.log('No hay productos para graficar');
+      return;
+    }
+
+    // Destruir gráficos previos si se vuelven a crear
+    if (this.stockChart) {
+      this.stockChart.destroy();
+    }
+    if (this.estadoChart) {
+      this.estadoChart.destroy();
+    }
+
+    // ---- Preparar datos agregados ----
+    const mapaStockPorCategoria = new Map<string, number>();
+    const mapaValorPorEstado = new Map<string, number>();
+
+    for (const p of this.productos) {
+      const stock = p.stock ?? 0;
+      const precio = p.precio ?? 0;
+
+      const categoria = p.nombre || 'Sin nombre';
+      const estado = this.obtenerEstado(p);
+
+      // Stock por categoría (por producto)
+      mapaStockPorCategoria.set(
+        categoria,
+        (mapaStockPorCategoria.get(categoria) ?? 0) + stock
+      );
+
+      // Valor total por estado
+      const valor = stock * precio;
+      mapaValorPorEstado.set(
+        estado,
+        (mapaValorPorEstado.get(estado) ?? 0) + valor
+      );
+    }
+
+    const categorias = Array.from(mapaStockPorCategoria.keys());
+    const cantidades = Array.from(mapaStockPorCategoria.values());
+
+    const estados = Array.from(mapaValorPorEstado.keys());
+    const valores = Array.from(mapaValorPorEstado.values());
+
+    console.log('Datos gráfico stock por categoría:', categorias, cantidades);
+    console.log('Datos gráfico valor por estado:', estados, valores);
+
+    // ---- Gráfico de barras: stock por categoría ----
+    const ctxStock = this.stockChartRef?.nativeElement.getContext('2d');
+    if (ctxStock) {
+      const configStock: ChartConfiguration<'bar'> = {
+        type: 'bar',
+        data: {
+          labels: categorias,
+          datasets: [
+            {
+              label: 'Unidades en stock',
+              data: cantidades,
+              borderRadius: 8,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                maxRotation: 45,
+                minRotation: 0,
+              },
+            },
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      };
+
+      this.stockChart = new Chart(ctxStock, configStock);
+    } else {
+      console.warn('No se encontró el contexto 2D para stockChart');
+    }
+
+    // ---- Gráfico doughnut: valor por estado ----
+    const ctxEstado = this.estadoChartRef?.nativeElement.getContext('2d');
+    if (ctxEstado) {
+      const configEstado: ChartConfiguration<'doughnut'> = {
+        type: 'doughnut',
+        data: {
+          labels: estados,
+          datasets: [
+            {
+              data: valores,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            },
+          },
+        },
+      };
+
+      this.estadoChart = new Chart(ctxEstado, configEstado);
+    } else {
+      console.warn('No se encontró el contexto 2D para estadoChart');
+    }
+  }
+
+  // Estados para el gráfico de valor por estado
+  private obtenerEstado(p: Producto): string {
+    const stock = p.stock ?? 0;
+    const minimo = (p as any).min ?? 0;
+    const activoFlag = p.activo ?? 1;
+
+    if (!activoFlag) {
+      return 'Inactivo';
+    }
+    if (stock === 0) {
+      return 'Sin stock';
+    }
+    if (stock <= minimo) {
+      return 'Stock bajo';
+    }
+    return 'Con stock';
+  }
+
+  // ---- Generación de PDF (igual que antes) ----
   descargarPdf(): void {
     if (!this.productos.length) {
       return;
@@ -248,14 +267,14 @@ export class ReportesInventarioComponent implements OnInit {
       resumenY + 28
     );
 
-    // Tabla de detalle
+    // Tabla de detalle en el PDF
     const body = this.productos.map((p) => [
       p.nombre,
       p.lote || '',
       p.color || '',
       this.formatoMonedaCLP(p.precio),
       p.stock ?? 0,
-      p.min ?? 0,
+      (p as any).min ?? 0,
       p.fecha_ingreso ? this.formatearFecha(p.fecha_ingreso) : '',
       p.fecha_limite ? this.formatearFecha(p.fecha_limite) : '',
       this.formatoMonedaCLP(p.precio * (p.stock || 0)),

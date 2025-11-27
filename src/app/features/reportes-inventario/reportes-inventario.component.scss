@@ -1,0 +1,135 @@
+/* src/app/features/reportes-inventario/reportes-inventario.component.scss */
+
+.reportes-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.reportes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.titulo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #4b1b7f;
+}
+
+.subtitulo {
+  margin-top: 0.25rem;
+  color: #6b6b6b;
+  font-size: 0.95rem;
+}
+
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.3rem;
+  background-color: #16a34a;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(22, 163, 74, 0.2);
+}
+
+.btn-pdf:hover {
+  filter: brightness(1.05);
+}
+
+.cards-resumen {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.card-resumen {
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.25rem 1.4rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f2f2f2;
+}
+
+.card-titulo {
+  font-size: 0.9rem;
+  color: #8b8b8b;
+}
+
+.card-valor {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.card-detalle {
+  font-size: 0.8rem;
+  color: #a3a3a3;
+  margin-top: 0.3rem;
+}
+
+.graficos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem;
+}
+
+.grafico-card {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  padding: 1.5rem 1.7rem;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f3f4f6;
+}
+
+.grafico-titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.grafico-subtitulo {
+  margin-top: 0.25rem;
+  font-size: 0.88rem;
+  color: #6b7280;
+}
+
+.grafico-contenedor {
+  margin-top: 1rem;
+  height: 260px;
+}
+
+.grafico-nota {
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+@media (max-width: 900px) {
+  .cards-resumen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .graficos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .reportes-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cards-resumen {
+    grid-template-columns: 1fr;
+  }
+}

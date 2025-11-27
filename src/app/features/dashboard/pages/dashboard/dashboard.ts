@@ -1,14 +1,17 @@
 // src/app/features/dashboard/pages/dashboard/dashboard.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 
 import {
   ProductosService,
   Producto,
 } from '../../../../core/services/productos.service';
 import { RegistrosService } from '../../../../core/services/registros.service';
+
+// ✅ IMPORT CORRECTO (ruta relativa)
+import { MermasService, Merma } from '../../../../core/services/mermas.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -104,10 +107,7 @@ import { RegistrosService } from '../../../../core/services/registros.service';
       <div class="row mb-3" *ngIf="kpis.ultimaActualizacion">
         <div class="col text-end text-muted small">
           Última actualización de inventario:
-          {{
-            kpis.ultimaActualizacion
-              | date:'dd/MM/yyyy HH:mm'
-          }} hrs
+          {{ kpis.ultimaActualizacion | date:'dd/MM/yyyy HH:mm' }} hrs
         </div>
       </div>
 
@@ -126,36 +126,34 @@ import { RegistrosService } from '../../../../core/services/registros.service';
             </div>
 
             <div class="card-body">
-             <!-- Menú de pestañas de Alertas (estilo Floricoop) -->
-<div class="fc-alert-tabs mb-3">
-  <button
-    type="button"
-    class="fc-alert-tab"
-    [class.fc-alert-tab--active]="alertaTab === 'minimo'"
-    (click)="alertaTab = 'minimo'"
-  >
-    Bajo mínimo
-  </button>
+              <div class="fc-alert-tabs mb-3">
+                <button
+                  type="button"
+                  class="fc-alert-tab"
+                  [class.fc-alert-tab--active]="alertaTab === 'minimo'"
+                  (click)="alertaTab = 'minimo'"
+                >
+                  Bajo mínimo
+                </button>
 
-  <button
-    type="button"
-    class="fc-alert-tab"
-    [class.fc-alert-tab--active]="alertaTab === 'vencimiento'"
-    (click)="alertaTab = 'vencimiento'"
-  >
-    Próximos a vencer
-  </button>
+                <button
+                  type="button"
+                  class="fc-alert-tab"
+                  [class.fc-alert-tab--active]="alertaTab === 'vencimiento'"
+                  (click)="alertaTab = 'vencimiento'"
+                >
+                  Próximos a vencer
+                </button>
 
-  <button
-    type="button"
-    class="fc-alert-tab"
-    [class.fc-alert-tab--active]="alertaTab === 'mermas'"
-    (click)="alertaTab = 'mermas'"
-  >
-    Mermas recientes
-  </button>
-</div>
-
+                <button
+                  type="button"
+                  class="fc-alert-tab"
+                  [class.fc-alert-tab--active]="alertaTab === 'mermas'"
+                  (click)="alertaTab = 'mermas'"
+                >
+                  Mermas recientes
+                </button>
+              </div>
 
               <!-- Bajo mínimo -->
               <div *ngIf="alertaTab === 'minimo'">
@@ -185,27 +183,20 @@ import { RegistrosService } from '../../../../core/services/registros.service';
                     </table>
                   </div>
                   <div class="text-end">
-                    <button
-                      class="btn btn-sm btn-outline-secondary"
-                      routerLink="/inventario"
-                    >
+                    <button class="btn btn-sm btn-outline-secondary" routerLink="/inventario">
                       Ver todos
                     </button>
                   </div>
                 </ng-container>
 
                 <ng-template #todoOkMinimo>
-                  <div class="text-muted">
-                    ✅ Todo bien: no hay ítems bajo el mínimo.
-                  </div>
+                  <div class="text-muted">✅ Todo bien: no hay ítems bajo el mínimo.</div>
                 </ng-template>
               </div>
 
               <!-- Próximos a vencer -->
               <div *ngIf="alertaTab === 'vencimiento'">
-                <ng-container
-                  *ngIf="alertas.proximosAVencer.length; else noVencimientos"
-                >
+                <ng-container *ngIf="alertas.proximosAVencer.length; else noVencimientos">
                   <div class="table-responsive">
                     <table class="table table-sm mb-2 align-middle">
                       <thead class="table-light">
@@ -222,38 +213,27 @@ import { RegistrosService } from '../../../../core/services/registros.service';
                           <td>{{ p.nombre }}</td>
                           <td>{{ p.lote || '—' }}</td>
                           <td class="text-end">{{ p.stock ?? 0 }}</td>
-                          <td>
-                            {{ p.fecha_limite | date:'dd/MM/yyyy' }}
-                          </td>
-                          <td class="text-end">
-                            {{ diasRestantes(p.fecha_limite) }}
-                          </td>
+                          <td>{{ p.fecha_limite | date:'dd/MM/yyyy' }}</td>
+                          <td class="text-end">{{ diasRestantes(p.fecha_limite) }}</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                   <div class="text-end">
-                    <button
-                      class="btn btn-sm btn-outline-secondary"
-                      routerLink="/inventario"
-                    >
+                    <button class="btn btn-sm btn-outline-secondary" routerLink="/inventario">
                       Ver todos
                     </button>
                   </div>
                 </ng-container>
 
                 <ng-template #noVencimientos>
-                  <div class="text-muted">
-                    📅 No hay productos próximos a vencer.
-                  </div>
+                  <div class="text-muted">📅 No hay productos próximos a vencer.</div>
                 </ng-template>
               </div>
 
-              <!-- Mermas recientes -->
+              <!-- ✅ Mermas recientes (ahora desde /api/mermas) -->
               <div *ngIf="alertaTab === 'mermas'">
-                <ng-container
-                  *ngIf="alertas.mermasRecientes.length; else noMermasRecientes"
-                >
+                <ng-container *ngIf="alertas.mermasRecientes.length; else noMermasRecientes">
                   <div class="table-responsive">
                     <table class="table table-sm mb-2 align-middle">
                       <thead class="table-light">
@@ -267,45 +247,33 @@ import { RegistrosService } from '../../../../core/services/registros.service';
                       </thead>
                       <tbody>
                         <tr *ngFor="let r of alertas.mermasRecientes">
-                          <td>
-                            {{ r.fecha_registro | date:'dd/MM HH:mm' }}
-                          </td>
+                          <td>{{ r.fecha_registro | date:'dd/MM HH:mm' }}</td>
                           <td>{{ r.producto }}</td>
                           <td>{{ r.lote || '—' }}</td>
+                          <td class="text-end">{{ r.cantidad }}</td>
                           <td class="text-end">
-                            {{ r.cantidad }}
-                          </td>
-                          <td class="text-end">
-                            {{
-                              (r.cantidad * r.precio_unitario)
-                                | currency:'CLP':'symbol-narrow':'1.0-0'
-                            }}
+                            {{ (r.cantidad * r.precio_unitario) | currency:'CLP':'symbol-narrow':'1.0-0' }}
                           </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                   <div class="text-end">
-                    <button
-                      class="btn btn-sm btn-outline-secondary"
-                      routerLink="/historial"
-                    >
-                      Ver historial completo
+                    <button class="btn btn-sm btn-outline-secondary" routerLink="/mermas">
+                      Ver mermas
                     </button>
                   </div>
                 </ng-container>
 
                 <ng-template #noMermasRecientes>
-                  <div class="text-muted">
-                    🧾 No hay mermas registradas recientemente.
-                  </div>
+                  <div class="text-muted">🧾 No hay mermas registradas recientemente.</div>
                 </ng-template>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ACTIVIDAD RECIENTE -->
+        <!-- ACTIVIDAD RECIENTE (se mantiene desde registros) -->
         <div class="col-lg-4 mb-4">
           <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-white border-0">
@@ -329,9 +297,7 @@ import { RegistrosService } from '../../../../core/services/registros.service';
                     </thead>
                     <tbody>
                       <tr *ngFor="let r of actividadReciente">
-                        <td class="small">
-                          {{ r.fecha_registro | date:'dd/MM HH:mm' }}
-                        </td>
+                        <td class="small">{{ r.fecha_registro | date:'dd/MM HH:mm' }}</td>
                         <td class="small">
                           <span
                             class="badge"
@@ -346,9 +312,7 @@ import { RegistrosService } from '../../../../core/services/registros.service';
                         </td>
                         <td class="small">
                           {{ r.producto }}
-                          <span class="text-muted" *ngIf="r.lote">
-                            ({{ r.lote }})
-                          </span>
+                          <span class="text-muted" *ngIf="r.lote">({{ r.lote }})</span>
                         </td>
                         <td class="text-end small">
                           <span
@@ -365,38 +329,35 @@ import { RegistrosService } from '../../../../core/services/registros.service';
                   </table>
                 </div>
                 <div class="text-end">
-                  <button
-                    class="btn btn-sm btn-outline-secondary"
-                    routerLink="/historial"
-                  >
+                  <button class="btn btn-sm btn-outline-secondary" routerLink="/historial">
                     Ver historial completo
                   </button>
                 </div>
               </ng-container>
 
               <ng-template #sinActividad>
-                <div class="text-muted">
-                  Aún no hay movimientos registrados en el historial.
-                </div>
+                <div class="text-muted">Aún no hay movimientos registrados en el historial.</div>
               </ng-template>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Mensaje de error general -->
       <div *ngIf="error" class="alert alert-danger mt-3">
         {{ error }}
       </div>
     </div>
   `,
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   productos: Producto[] = [];
   registros: any[] = [];
+  mermas: Merma[] = [];
 
   loading = false;
   error: string | null = null;
+
+  private subMermas?: Subscription;
 
   // KPIs
   kpis = {
@@ -412,31 +373,43 @@ export class DashboardComponent implements OnInit {
   alertas = {
     bajoMinimo: [] as Producto[],
     proximosAVencer: [] as Producto[],
-    mermasRecientes: [] as any[],
+    // mantiene el formato que usa tu template (fecha_registro, producto, precio_unitario...)
+    mermasRecientes: [] as Array<{
+      fecha_registro: string;
+      producto: string;
+      lote?: string | null;
+      cantidad: number;
+      precio_unitario: number;
+    }>,
   };
 
-  // Últimos movimientos
   actividadReciente: any[] = [];
 
-  // Tab seleccionado en alertas
   alertaTab: 'minimo' | 'vencimiento' | 'mermas' = 'minimo';
 
   constructor(
     private productosService: ProductosService,
-    private registrosService: RegistrosService
+    private registrosService: RegistrosService,
+    private mermasService: MermasService
   ) {}
 
   ngOnInit(): void {
     this.cargarDatos();
+
+    // ✅ si agregas/eliminás mermas, se recarga dashboard automáticamente
+    this.subMermas = this.mermasService.changed$.subscribe(() => {
+      this.cargarDatos();
+    });
   }
 
-  /** Texto dinámico de la card de stock total */
+  ngOnDestroy(): void {
+    this.subMermas?.unsubscribe();
+  }
+
   get stockSubtexto(): string {
     if (!this.kpis.ultimaActualizacion) return 'Sin registros aún';
-
     const hoy = new Date();
     const u = this.kpis.ultimaActualizacion;
-
     if (
       u.getFullYear() === hoy.getFullYear() &&
       u.getMonth() === hoy.getMonth() &&
@@ -447,7 +420,6 @@ export class DashboardComponent implements OnInit {
     return 'Revisar movimientos';
   }
 
-  /** % de merma respecto al stock total del mes */
   get mermaPorcentaje(): number {
     if (this.kpis.stockTotal <= 0) return 0;
     return (
@@ -456,7 +428,6 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  /** Cargar productos + registros en paralelo */
   private cargarDatos(): void {
     this.loading = true;
     this.error = null;
@@ -464,13 +435,17 @@ export class DashboardComponent implements OnInit {
     forkJoin([
       this.productosService.list(),
       this.registrosService.list(),
+      this.mermasService.list(), // ✅ traemos mermas reales
     ]).subscribe({
-      next: ([productos, registros]) => {
+      next: ([productos, registros, mermas]) => {
         this.productos = productos;
         this.registros = registros;
-        this.calcularKpis();
-        this.calcularAlertas();
+        this.mermas = mermas;
+
+        this.calcularKpis();         // ahora usa this.mermas
+        this.calcularAlertas();      // ahora usa this.mermas
         this.calcularActividadReciente();
+
         this.loading = false;
       },
       error: (err) => {
@@ -481,23 +456,17 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  /** Calcula KPIs generales */
   private calcularKpis(): void {
-    const productosConStock = this.productos.filter(
-      (p) => (p.stock ?? 0) > 0
-    );
+    const productosConStock = this.productos.filter((p) => (p.stock ?? 0) > 0);
 
     this.kpis.productosActivos = productosConStock.length;
-    this.kpis.stockTotal = productosConStock.reduce(
-      (acc, p) => acc + (p.stock ?? 0),
-      0
-    );
+    this.kpis.stockTotal = productosConStock.reduce((acc, p) => acc + (p.stock ?? 0), 0);
     this.kpis.valorTotal = productosConStock.reduce(
       (acc, p) => acc + p.precio * (p.stock ?? 0),
       0
     );
 
-    // Última actualización = max(fecha_ingreso productos, fecha_registro registros)
+    // Última actualización = max(fecha_ingreso productos, fecha_registro registros, fecha_merma mermas)
     const fechas: Date[] = [];
 
     for (const p of this.productos) {
@@ -508,45 +477,50 @@ export class DashboardComponent implements OnInit {
       const d = this.parseDate(r.fecha_registro);
       if (d) fechas.push(d);
     }
+    for (const m of this.mermas) {
+      const d = this.parseDate(m.fecha_merma);
+      if (d) fechas.push(d);
+    }
 
     this.kpis.ultimaActualizacion = fechas.length
       ? fechas.reduce((max, d) => (d > max ? d : max), fechas[0])
       : null;
 
-    // Mermas del mes (asumimos registros con tipo === 'MERMA')
+    // ✅ Mermas del mes desde tabla mermas
     const ahora = new Date();
     const mes = ahora.getMonth();
     const anio = ahora.getFullYear();
 
-    const mermasMes = this.registros.filter((r) => {
-      if (r.tipo !== 'MERMA') return false;
-      const d = this.parseDate(r.fecha_registro);
-      if (!d) return false;
-      return d.getMonth() === mes && d.getFullYear() === anio;
+    const precioPorId = new Map<number, number>();
+    const nombrePorId = new Map<number, string>();
+    for (const p of this.productos) {
+      if (p.id != null) {
+        precioPorId.set(p.id, p.precio ?? 0);
+        nombrePorId.set(p.id, p.nombre ?? 'Sin nombre');
+      }
+    }
+
+    const mermasMes = this.mermas.filter((m) => {
+      const d = this.parseDate(m.fecha_merma);
+      return !!d && d.getMonth() === mes && d.getFullYear() === anio;
     });
 
-    this.kpis.mermasUnidadesMes = mermasMes.reduce(
-      (acc, r) => acc + Math.abs(r.cantidad ?? 0),
-      0
-    );
-    this.kpis.mermasMontoMes = mermasMes.reduce(
-      (acc, r) =>
-        acc + Math.abs(r.cantidad ?? 0) * (r.precio_unitario ?? 0),
-      0
-    );
+    this.kpis.mermasUnidadesMes = mermasMes.reduce((acc, m) => acc + (m.cantidad ?? 0), 0);
+
+    this.kpis.mermasMontoMes = mermasMes.reduce((acc, m) => {
+      const precio = precioPorId.get(m.producto_id) ?? 0;
+      return acc + (m.cantidad ?? 0) * precio;
+    }, 0);
   }
 
-  /** Calcula datos para el panel de alertas */
   private calcularAlertas(): void {
     // Bajo mínimo
     this.alertas.bajoMinimo = this.productos
       .filter((p) => (p.stock ?? 0) < (p.min ?? 0))
-      .sort(
-        (a, b) => (a.stock ?? 0) - (b.stock ?? 0)
-      )
+      .sort((a, b) => (a.stock ?? 0) - (b.stock ?? 0))
       .slice(0, 5);
 
-    // Próximos a vencer (ej: dentro de 30 días)
+    // Próximos a vencer (30 días)
     const hoy = new Date();
     const diasVentana = 30;
 
@@ -554,8 +528,7 @@ export class DashboardComponent implements OnInit {
       .filter((p) => {
         const d = this.parseDate(p.fecha_limite);
         if (!d) return false;
-        const diffMs = d.getTime() - hoy.getTime();
-        const diffDias = diffMs / (1000 * 60 * 60 * 24);
+        const diffDias = (d.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24);
         return diffDias >= 0 && diffDias <= diasVentana;
       })
       .sort((a, b) => {
@@ -565,18 +538,35 @@ export class DashboardComponent implements OnInit {
       })
       .slice(0, 5);
 
-    // Mermas recientes
-    this.alertas.mermasRecientes = this.registros
-      .filter((r) => r.tipo === 'MERMA')
+    // ✅ Mermas recientes desde tabla mermas (no registros)
+    const precioPorId = new Map<number, number>();
+    const nombrePorId = new Map<number, string>();
+    for (const p of this.productos) {
+      if (p.id != null) {
+        precioPorId.set(p.id, p.precio ?? 0);
+        nombrePorId.set(p.id, p.nombre ?? 'Sin nombre');
+      }
+    }
+
+    this.alertas.mermasRecientes = [...this.mermas]
       .sort(
         (a, b) =>
-          (this.parseDate(b.fecha_registro)?.getTime() ?? 0) -
-          (this.parseDate(a.fecha_registro)?.getTime() ?? 0)
+          (this.parseDate(b.fecha_merma)?.getTime() ?? 0) -
+          (this.parseDate(a.fecha_merma)?.getTime() ?? 0)
       )
-      .slice(0, 5);
+      .slice(0, 5)
+      .map((m) => ({
+        fecha_registro: m.fecha_merma, // para que tu template no cambie
+        producto:
+          m.producto_nombre ||
+          nombrePorId.get(m.producto_id) ||
+          `ID ${m.producto_id}`,
+        lote: m.lote ?? null,
+        cantidad: m.cantidad ?? 0,
+        precio_unitario: precioPorId.get(m.producto_id) ?? 0,
+      }));
   }
 
-  /** Calcula la tabla de últimos movimientos */
   private calcularActividadReciente(): void {
     this.actividadReciente = [...this.registros]
       .sort(
@@ -587,16 +577,13 @@ export class DashboardComponent implements OnInit {
       .slice(0, 10);
   }
 
-  /** Días restantes hasta una fecha */
   diasRestantes(fecha: string | null | undefined): number {
     const d = this.parseDate(fecha);
     if (!d) return 0;
     const hoy = new Date();
-    const diffMs = d.getTime() - hoy.getTime();
-    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    return Math.ceil((d.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
   }
 
-  /** Helper: parsear fechas seguras */
   private parseDate(value: any): Date | null {
     if (!value) return null;
     const d = new Date(value);
