@@ -53,7 +53,7 @@ type EditProductoForm = {
           Inventario de productos
         </h1>
         <p class="text-muted mb-0">
-          Listado en tiempo real desde la API <code>/api/productos</code>.
+          Listado en tiempo real
         </p>
       </div>
 
